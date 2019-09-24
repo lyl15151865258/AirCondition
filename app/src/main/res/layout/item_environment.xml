@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="@dimen/dp_5"
+            android:padding="@dimen/dp_3"
             android:textColor="@color/gray_5"
             android:textSize="@dimen/sp_10" />
 

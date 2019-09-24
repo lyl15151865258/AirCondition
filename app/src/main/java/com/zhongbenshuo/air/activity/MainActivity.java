@@ -150,8 +150,8 @@ public class MainActivity extends BaseActivity {
             } else {
                 environmentListMap.get(environment.getStation()).add(0, environment);
             }
-            // 最多保留10条
-            if (environmentListMap.get(environment.getStation()).size() > 10) {
+            // 最多保留4条
+            if (environmentListMap.get(environment.getStation()).size() > 4) {
                 environmentListMap.get(environment.getStation()).remove(0);
             }
             // 刷新页面
@@ -189,7 +189,7 @@ public class MainActivity extends BaseActivity {
             realDataList.add(new RealData("CO2", environment.getCarbonDioxide(), "ppm"));
             realDataAdapter.notifyDataSetChanged();
             cvIlluminance.setTitle("光照度");
-            cvIlluminance.setCompleteDegree(environment.getCarbonDioxide(), "lux");
+            cvIlluminance.setCompleteDegree(environment.getIlluminance(), "lux");
             cvIlluminance.setVisibility(View.VISIBLE);
         }
     }

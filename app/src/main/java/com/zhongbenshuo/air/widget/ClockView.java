@@ -195,8 +195,28 @@ public class ClockView extends View {
         canvas.rotate(360 - 135 - 2.7f * i);        //坐标系总旋转角度为360度
 
         int textBaseLine = (int) (0 + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom);
-        LogUtils.d("文字基线：" + textBaseLine);
+        LogUtils.d("文字基线：fontMetrics.bottom：" + fontMetrics.bottom + "，fontMetrics.top：" + fontMetrics.top + "，textBaseLine：" + textBaseLine);
         canvas.drawText(String.valueOf(i), 0, textBaseLine, pointerPaint);
+
+//        if (i < 50) {
+//            int y = 25 - i;
+//            if (i == 10 || i == 20) {
+//                canvas.drawText(String.valueOf(i), -25, y, pointerPaint);
+//            } else {
+//                canvas.drawText(String.valueOf(i), -20, y, pointerPaint);
+//            }
+//
+//        } else if (i == 50) {
+//            canvas.drawText(String.valueOf(i), 0, -20, pointerPaint);
+//        } else {
+//            int y = 25 - (100 - i);
+//            if (i == 80 || i == 90) {
+//                canvas.drawText(String.valueOf(i), 25, y, pointerPaint);
+//            } else {
+//                canvas.drawText(String.valueOf(i), 20, y, pointerPaint);
+//            }
+//        }
+
         canvas.restore();
     }
 

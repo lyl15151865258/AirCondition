@@ -4,13 +4,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_station_selector"
+    android:gravity="center"
     android:orientation="vertical"
-    android:padding="@dimen/dp_10">
+    android:padding="@dimen/dp_5">
 
     <com.zhongbenshuo.air.widget.ClockView
         android:id="@+id/cvRealData"
-        android:layout_width="@dimen/dp_90"
-        android:layout_height="@dimen/dp_90"
+        android:layout_width="@dimen/dp_80"
+        android:layout_height="@dimen/dp_80"
         app:color_dial_high="@color/red_600"
         app:color_dial_lower="@color/green_600"
         app:color_dial_middle="@color/orange_600"
@@ -19,6 +20,17 @@
         app:text_size_value="@dimen/sp_8"
         app:text_title_color="@color/gray_5"
         app:text_title_dial="图表"
-        app:text_title_size="@dimen/sp_10" />
+        app:text_title_size="@dimen/sp_8" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_normal"
+        android:gravity="center"
+        android:padding="@dimen/dp_2"
+        android:text="正常"
+        android:textColor="@color/gray_5"
+        android:textSize="@dimen/sp_8" />
 
 </LinearLayout>

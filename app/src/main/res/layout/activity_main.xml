@@ -223,7 +223,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:padding="@dimen/dp_3"
-                        android:text="CO2"
+                        android:text="二氧化碳"
                         android:textColor="@color/gray_5"
                         android:textSize="@dimen/sp_12"
                         android:textStyle="bold" />

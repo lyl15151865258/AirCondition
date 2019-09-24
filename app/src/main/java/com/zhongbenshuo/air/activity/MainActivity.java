@@ -181,12 +181,12 @@ public class MainActivity extends BaseActivity {
         if (environmentListMap.get(stationList.get(selectedStation).getStationId()).size() > 0) {
             realDataList.clear();
             Environment environment = environmentListMap.get(stationList.get(selectedStation).getStationId()).get(0);
-            realDataList.add(new RealData("温度", environment.getTemperature(), "℃"));
-            realDataList.add(new RealData("湿度", environment.getHumidity(), "%"));
-            realDataList.add(new RealData("PM2.5", environment.getPm25(), "μg/m³"));
-            realDataList.add(new RealData("PM10", environment.getPm10(), "μg/m³"));
-            realDataList.add(new RealData("甲醛", environment.getFormaldehyde(), "mg/m³"));
-            realDataList.add(new RealData("CO2", environment.getCarbonDioxide(), "ppm"));
+            realDataList.add(new RealData("温度", RealData.DATA_TYPE.TYPE_TEMP, environment.getTemperature(), "℃"));
+            realDataList.add(new RealData("湿度", RealData.DATA_TYPE.TYPE_HUMIDITY, environment.getHumidity(), "%"));
+            realDataList.add(new RealData("PM2.5", RealData.DATA_TYPE.TYPE_PM25, environment.getPm25(), "μg/m³"));
+            realDataList.add(new RealData("PM10", RealData.DATA_TYPE.TYPE_PM10, environment.getPm10(), "μg/m³"));
+            realDataList.add(new RealData("甲醛", RealData.DATA_TYPE.TYPE_HCHO, environment.getFormaldehyde(), "mg/m³"));
+            realDataList.add(new RealData("二氧化碳", RealData.DATA_TYPE.TYPE_CO2, environment.getCarbonDioxide(), "ppm"));
             realDataAdapter.notifyDataSetChanged();
             cvIlluminance.setTitle("光照度");
             cvIlluminance.setCompleteDegree(environment.getIlluminance(), "lux");

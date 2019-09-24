@@ -14,9 +14,12 @@ public class RealData {
 
     private float value;
 
-    public RealData(String chartName, float value) {
+    private String unit;
+
+    public RealData(String chartName, float value, String unit) {
         this.chartName = chartName;
         this.value = value;
+        this.unit = unit;
     }
 
     public String getChartName() {
@@ -33,5 +36,13 @@ public class RealData {
 
     public void setValue(float value) {
         this.value = value;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

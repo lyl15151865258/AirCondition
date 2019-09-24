@@ -16,7 +16,7 @@
         app:color_dial_middle="@color/orange_600"
         app:stroke_width_dial="@dimen/dp_2"
         app:text_size_dial="@dimen/sp_6"
-        app:text_size_value="@dimen/sp_10"
+        app:text_size_value="@dimen/sp_8"
         app:text_title_color="@color/gray_5"
         app:text_title_dial="图表"
         app:text_title_size="@dimen/sp_10" />

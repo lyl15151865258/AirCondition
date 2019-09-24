@@ -86,12 +86,12 @@
                         app:color_dial_high="@color/red_600"
                         app:color_dial_lower="@color/green_600"
                         app:color_dial_middle="@color/orange_600"
-                        app:stroke_width_dial="@dimen/dp_2"
-                        app:text_size_dial="@dimen/sp_6"
-                        app:text_size_value="@dimen/sp_10"
+                        app:stroke_width_dial="@dimen/dp_4"
+                        app:text_size_dial="@dimen/sp_8"
+                        app:text_size_value="@dimen/sp_12"
                         app:text_title_color="@color/gray_5"
                         app:text_title_dial=""
-                        app:text_title_size="@dimen/sp_10" />
+                        app:text_title_size="@dimen/sp_12" />
 
                 </LinearLayout>
 

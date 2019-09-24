@@ -46,6 +46,7 @@ public class ClockView extends View {
     private int radiusDial;
     private int mRealRadius;
     private float currentValue;
+    private String unit = "";
 
     private Paint arcPaint;
     private RectF mRect;
@@ -92,6 +93,7 @@ public class ClockView extends View {
 
         pointerPaint = new Paint();
         pointerPaint.setAntiAlias(true);
+        pointerPaint.setStyle(Paint.Style.FILL);
         pointerPaint.setTextSize(textSizeDial);
         pointerPaint.setTextAlign(Paint.Align.CENTER);
         fontMetrics = pointerPaint.getFontMetrics();
@@ -190,33 +192,13 @@ public class ClockView extends View {
 
     private void drawPointerText(Canvas canvas, int i) {
         canvas.save();
-        int currentCenterX = (int) (radiusDial - strokeWidthDial - dp2px(21) - pointerPaint.measureText(String.valueOf(i)) / 2);
+        int currentCenterX = (int) (radiusDial - strokeWidthDial - dp2px(12) - pointerPaint.measureText(String.valueOf(i)) / 2);
         canvas.translate(currentCenterX, 0);
         canvas.rotate(360 - 135 - 2.7f * i);        //坐标系总旋转角度为360度
 
         int textBaseLine = (int) (0 + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom);
         LogUtils.d("文字基线：fontMetrics.bottom：" + fontMetrics.bottom + "，fontMetrics.top：" + fontMetrics.top + "，textBaseLine：" + textBaseLine);
         canvas.drawText(String.valueOf(i), 0, textBaseLine, pointerPaint);
-
-//        if (i < 50) {
-//            int y = 25 - i;
-//            if (i == 10 || i == 20) {
-//                canvas.drawText(String.valueOf(i), -25, y, pointerPaint);
-//            } else {
-//                canvas.drawText(String.valueOf(i), -20, y, pointerPaint);
-//            }
-//
-//        } else if (i == 50) {
-//            canvas.drawText(String.valueOf(i), 0, -20, pointerPaint);
-//        } else {
-//            int y = 25 - (100 - i);
-//            if (i == 80 || i == 90) {
-//                canvas.drawText(String.valueOf(i), 25, y, pointerPaint);
-//            } else {
-//                canvas.drawText(String.valueOf(i), 20, y, pointerPaint);
-//            }
-//        }
-
         canvas.restore();
     }
 
@@ -234,7 +216,7 @@ public class ClockView extends View {
             titlePaint.setColor(colorDialHigh);
         }
         titlePaint.setTextSize(valueTextSize);
-        canvas.drawText(StringUtil.removeZero(String.valueOf(currentValue)), 0, radiusDial * 2 / 3, titlePaint);
+        canvas.drawText(StringUtil.removeZero(String.valueOf(currentValue)) + unit, 0, radiusDial * 3 / 4, titlePaint);
     }
 
     /**
@@ -254,8 +236,9 @@ public class ClockView extends View {
         canvas.drawPath(pointerPath, titlePaint);
     }
 
-    public void setCompleteDegree(float degree) {
+    public void setCompleteDegree(float degree, String unit) {
         currentValue = degree;
+        this.unit = unit;
         invalidate();
     }
 

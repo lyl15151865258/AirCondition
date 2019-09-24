@@ -107,7 +107,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
                 } else if (realData.getValue() > 50 && realData.getValue() <= 150) {
                     holder.tvStatus.setText("正常");
-                    holder.tvStatus.setBackgroundResource(R.drawable.background_normal2);
+                    holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
                 } else {
                     holder.tvStatus.setText("高");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_abnormal);
@@ -130,13 +130,13 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.orange_600), mContext.getResources().getColor(R.color.value_high));
                 holder.cvRealData.setValue(0, 2500, 1000, 2000);
                 if (realData.getValue() <= 450) {
-                    holder.tvStatus.setText("低");
-                    holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
-                } else if (realData.getValue() > 450 && realData.getValue() <= 1000) {
                     holder.tvStatus.setText("正常");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
+                } else if (realData.getValue() > 450 && realData.getValue() <= 1000) {
+                    holder.tvStatus.setText("略高");
+                    holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
                 } else if (realData.getValue() > 1000 && realData.getValue() <= 2000) {
-                    holder.tvStatus.setText("偏高");
+                    holder.tvStatus.setText("高");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal2);
                 } else {
                     holder.tvStatus.setText("异常");

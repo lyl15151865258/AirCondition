@@ -190,18 +190,24 @@ public class ClockView extends View {
             if (i % 10 == 0) {
                 // 长表针
                 pointerPaint.setStrokeWidth(4);
-                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(10), 0, pointerPaint);
+                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(6), 0, pointerPaint);
                 // 绘制数值
                 drawPointerText(canvas, i);
             } else {
                 // 短表针
                 pointerPaint.setStrokeWidth(2);
-                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(5), 0, pointerPaint);
+                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(4), 0, pointerPaint);
             }
             canvas.rotate(5.4f);
         }
     }
 
+    /**
+     * 绘制刻度盘的数字
+     *
+     * @param canvas
+     * @param i
+     */
     private void drawPointerText(Canvas canvas, int i) {
         canvas.save();
         int currentCenterX = (int) (radiusDial - strokeWidthDial - dp2px(12) - pointerPaint.measureText(String.valueOf(i)) / 2);
@@ -215,6 +221,11 @@ public class ClockView extends View {
         canvas.restore();
     }
 
+    /**
+     * 绘制标题和数值
+     *
+     * @param canvas
+     */
     private void drawTitleDial(Canvas canvas) {
         titlePaint.setColor(titleDialColor);
         titlePaint.setTextSize(titleDialSize);
@@ -243,9 +254,9 @@ public class ClockView extends View {
         canvas.rotate(currentDegree);
 
         pointerPath.moveTo(radiusDial - strokeWidthDial - dp2px(12), 0);
-        pointerPath.lineTo(0, -dp2px(5));
+        pointerPath.lineTo(0, -dp2px(3));
         pointerPath.lineTo(-12, 0);
-        pointerPath.lineTo(0, dp2px(5));
+        pointerPath.lineTo(0, dp2px(3));
         pointerPath.close();
         canvas.drawPath(pointerPath, titlePaint);
     }

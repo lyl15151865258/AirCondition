@@ -32,6 +32,11 @@ public class ClockView extends View {
     private static final int DEFAULT_VALUE_SIZE = 28;
     private static final int DEFAULT_ANIM_PLAY_TIME = 2000;
 
+    private float default_value_min = 0;
+    private float default_value_max = 100;
+    private float default_value_middle_start = 30;
+    private float default_value_middle_end = 70;
+
     private int colorDialLower;
     private int colorDialMiddle;
     private int colorDialHigh;
@@ -152,12 +157,17 @@ public class ClockView extends View {
 
     private void drawArc(Canvas canvas) {
         canvas.translate(getPaddingLeft() + radiusDial, getPaddingTop() + radiusDial);
+        float degree = 270f / (default_value_max - default_value_min);
+        LogUtils.d("单位数据对应的角度为：" + degree);
         arcPaint.setColor(colorDialLower);
-        canvas.drawArc(mRect, 135, 54, false, arcPaint);
+        canvas.drawArc(mRect, 135, (default_value_middle_start - default_value_min) * degree, false, arcPaint);
+        LogUtils.d("绘制圆弧：起始角度：" + 135 + "，旋转角度：" + (default_value_middle_start - default_value_min) * degree);
         arcPaint.setColor(colorDialMiddle);
-        canvas.drawArc(mRect, 189, 162, false, arcPaint);
+        canvas.drawArc(mRect, 135 + (default_value_middle_start - default_value_min) * degree, degree * (default_value_middle_end - default_value_middle_start), false, arcPaint);
+        LogUtils.d("绘制圆弧：起始角度：" + (135 + (default_value_middle_start - default_value_min) * degree) + "，旋转角度：" + degree * (default_value_middle_end - default_value_middle_start));
         arcPaint.setColor(colorDialHigh);
-        canvas.drawArc(mRect, 351, 54, false, arcPaint);
+        canvas.drawArc(mRect, 135 + (default_value_middle_end - default_value_min) * degree, degree * (default_value_max - default_value_middle_end), false, arcPaint);
+        LogUtils.d("绘制圆弧：起始角度：" + (135 + (default_value_middle_end - default_value_min) * degree) + "，旋转角度：" + degree * (default_value_max - default_value_middle_end));
     }
 
     /**
@@ -167,10 +177,12 @@ public class ClockView extends View {
      */
     private void drawPointerLine(Canvas canvas) {
         canvas.rotate(135);
-        for (int i = 0; i < 101; i++) {     //一共需要绘制101个表针
-            if (i <= 20) {
+        // 把数据进行50等分
+        float unitValue = (default_value_max - default_value_min) / 50f;
+        for (int i = 0; i < 51; i++) {     //一共需要绘制51个表针
+            if (i * unitValue + default_value_min <= default_value_middle_start) {
                 pointerPaint.setColor(colorDialLower);
-            } else if (i <= 80) {
+            } else if (i * unitValue + default_value_min <= default_value_middle_end) {
                 pointerPaint.setColor(colorDialMiddle);
             } else {
                 pointerPaint.setColor(colorDialHigh);
@@ -186,7 +198,7 @@ public class ClockView extends View {
                 pointerPaint.setStrokeWidth(2);
                 canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(5), 0, pointerPaint);
             }
-            canvas.rotate(2.7f);
+            canvas.rotate(5.4f);
         }
     }
 
@@ -194,23 +206,24 @@ public class ClockView extends View {
         canvas.save();
         int currentCenterX = (int) (radiusDial - strokeWidthDial - dp2px(12) - pointerPaint.measureText(String.valueOf(i)) / 2);
         canvas.translate(currentCenterX, 0);
-        canvas.rotate(360 - 135 - 2.7f * i);        //坐标系总旋转角度为360度
+        canvas.rotate(360 - 135 - 5.4f * i);        //坐标系总旋转角度为360度
 
         int textBaseLine = (int) (0 + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom);
         LogUtils.d("文字基线：fontMetrics.bottom：" + fontMetrics.bottom + "，fontMetrics.top：" + fontMetrics.top + "，textBaseLine：" + textBaseLine);
-        canvas.drawText(String.valueOf(i), 0, textBaseLine, pointerPaint);
+        float value = default_value_min + (default_value_max - default_value_min) * i / 50f;
+        canvas.drawText(StringUtil.removeZero(String.valueOf(value)), 0, textBaseLine, pointerPaint);
         canvas.restore();
     }
 
     private void drawTitleDial(Canvas canvas) {
         titlePaint.setColor(titleDialColor);
         titlePaint.setTextSize(titleDialSize);
-        canvas.rotate(-47.7f);       //恢复坐标系为起始中心位置
+        canvas.rotate(-45f - 5.4f);       //恢复坐标系为起始中心位置
         canvas.drawText(titleDial, 0, -radiusDial / 4, titlePaint);
 
-        if (currentValue <= 20) {
+        if (currentValue <= default_value_middle_start) {
             titlePaint.setColor(colorDialLower);
-        } else if (currentValue <= 80) {
+        } else if (currentValue <= default_value_middle_end) {
             titlePaint.setColor(colorDialMiddle);
         } else {
             titlePaint.setColor(colorDialHigh);
@@ -225,7 +238,8 @@ public class ClockView extends View {
      * @param canvas
      */
     private void drawPointer(Canvas canvas) {
-        int currentDegree = (int) (currentValue * 2.7 + 135);
+        float degree = 270f / (default_value_max - default_value_min);
+        int currentDegree = (int) ((currentValue - default_value_min) * degree + 135);
         canvas.rotate(currentDegree);
 
         pointerPath.moveTo(radiusDial - strokeWidthDial - dp2px(12), 0);
@@ -252,6 +266,21 @@ public class ClockView extends View {
 
     public void setTitle(String title) {
         titleDial = title;
+        invalidate();
+    }
+
+    public void setColor(int colorDialLower, int colorDialMiddle, int colorDialHigh) {
+        this.colorDialLower = colorDialLower;
+        this.colorDialMiddle = colorDialMiddle;
+        this.colorDialHigh = colorDialHigh;
+        invalidate();
+    }
+
+    public void setValue(float default_value_min, float default_value_max, float default_value_middle_start, float default_value_middle_end) {
+        this.default_value_min = default_value_min;
+        this.default_value_max = default_value_max;
+        this.default_value_middle_start = default_value_middle_start;
+        this.default_value_middle_end = default_value_middle_end;
         invalidate();
     }
 

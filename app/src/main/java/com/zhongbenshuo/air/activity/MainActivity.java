@@ -2,6 +2,7 @@ package com.zhongbenshuo.air.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -190,6 +191,8 @@ public class MainActivity extends BaseActivity {
             realDataAdapter.notifyDataSetChanged();
             cvIlluminance.setTitle("光照度");
             cvIlluminance.setCompleteDegree(environment.getIlluminance(), "lux");
+            cvIlluminance.setColor(mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low));
+            cvIlluminance.setValue(0, 1000, 0, 0);
             cvIlluminance.setVisibility(View.VISIBLE);
         }
     }

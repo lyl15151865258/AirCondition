@@ -9,6 +9,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
+import android.view.View;
 
 import com.zhongbenshuo.air.R;
 import com.zhongbenshuo.air.adapter.HistoryDataAdapter;
@@ -22,6 +23,7 @@ import com.zhongbenshuo.air.constant.Constants;
 import com.zhongbenshuo.air.service.WebSocketService;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
+import com.zhongbenshuo.air.widget.ClockView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -52,6 +54,7 @@ public class MainActivity extends BaseActivity {
     private HistoryDataAdapter historyDataAdapter;
     private RealDataAdapter realDataAdapter;
     private int selectedStation = 0;
+    private ClockView cvIlluminance;
 
     private static boolean flag = true;
     // 用于自动点击Item的定时任务
@@ -93,6 +96,8 @@ public class MainActivity extends BaseActivity {
         realDataList = new ArrayList<>();
         realDataAdapter = new RealDataAdapter(this, realDataList);
         rvRealTime.setAdapter(realDataAdapter);
+
+        cvIlluminance = findViewById(R.id.cvIlluminance);
 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -183,6 +188,9 @@ public class MainActivity extends BaseActivity {
             realDataList.add(new RealData("甲醛", environment.getFormaldehyde()));
             realDataList.add(new RealData("CO2", environment.getCarbonDioxide()));
             realDataAdapter.notifyDataSetChanged();
+            cvIlluminance.setTitle("光照度");
+            cvIlluminance.setCompleteDegree(environment.getCarbonDioxide());
+            cvIlluminance.setVisibility(View.VISIBLE);
         }
     }
 

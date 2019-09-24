@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -74,7 +75,23 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <com.zhongbenshuo.air.widget.ClockView
+                        android:id="@+id/cvIlluminance"
+                        android:layout_width="@dimen/dp_120"
+                        android:layout_height="@dimen/dp_120"
+                        android:visibility="gone"
+                        app:color_dial_high="@color/red_600"
+                        app:color_dial_lower="@color/green_600"
+                        app:color_dial_middle="@color/orange_600"
+                        app:stroke_width_dial="@dimen/dp_2"
+                        app:text_size_dial="@dimen/sp_6"
+                        app:text_size_value="@dimen/sp_10"
+                        app:text_title_color="@color/gray_5"
+                        app:text_title_dial=""
+                        app:text_title_size="@dimen/sp_10" />
 
                 </LinearLayout>
 

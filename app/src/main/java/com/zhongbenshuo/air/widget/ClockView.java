@@ -1,6 +1,5 @@
 package com.zhongbenshuo.air.widget;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -12,9 +11,10 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 
 import com.zhongbenshuo.air.R;
+import com.zhongbenshuo.air.utils.LogUtils;
+import com.zhongbenshuo.air.utils.StringUtil;
 
 /**
  * Created by Android_Jian on 2018/11/3.
@@ -158,10 +158,14 @@ public class ClockView extends View {
         canvas.drawArc(mRect, 351, 54, false, arcPaint);
     }
 
+    /**
+     * 绘制分割线
+     *
+     * @param canvas
+     */
     private void drawPointerLine(Canvas canvas) {
         canvas.rotate(135);
         for (int i = 0; i < 101; i++) {     //一共需要绘制101个表针
-
             if (i <= 20) {
                 pointerPaint.setColor(colorDialLower);
             } else if (i <= 80) {
@@ -169,14 +173,15 @@ public class ClockView extends View {
             } else {
                 pointerPaint.setColor(colorDialHigh);
             }
-
-            if (i % 10 == 0) {     //长表针
-                pointerPaint.setStrokeWidth(6);
-                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(15), 0, pointerPaint);
-
+            if (i % 10 == 0) {
+                // 长表针
+                pointerPaint.setStrokeWidth(4);
+                canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(10), 0, pointerPaint);
+                // 绘制数值
                 drawPointerText(canvas, i);
-            } else {    //短表针
-                pointerPaint.setStrokeWidth(3);
+            } else {
+                // 短表针
+                pointerPaint.setStrokeWidth(2);
                 canvas.drawLine(radiusDial, 0, radiusDial - strokeWidthDial - dp2px(5), 0, pointerPaint);
             }
             canvas.rotate(2.7f);
@@ -190,6 +195,7 @@ public class ClockView extends View {
         canvas.rotate(360 - 135 - 2.7f * i);        //坐标系总旋转角度为360度
 
         int textBaseLine = (int) (0 + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom);
+        LogUtils.d("文字基线：" + textBaseLine);
         canvas.drawText(String.valueOf(i), 0, textBaseLine, pointerPaint);
         canvas.restore();
     }
@@ -208,9 +214,14 @@ public class ClockView extends View {
             titlePaint.setColor(colorDialHigh);
         }
         titlePaint.setTextSize(valueTextSize);
-        canvas.drawText(currentValue + "%", 0, radiusDial * 2 / 3, titlePaint);
+        canvas.drawText(StringUtil.removeZero(String.valueOf(currentValue)), 0, radiusDial * 2 / 3, titlePaint);
     }
 
+    /**
+     * 绘制指针
+     *
+     * @param canvas
+     */
     private void drawPointer(Canvas canvas) {
         int currentDegree = (int) (currentValue * 2.7 + 135);
         canvas.rotate(currentDegree);
@@ -224,18 +235,8 @@ public class ClockView extends View {
     }
 
     public void setCompleteDegree(float degree) {
-
-        ValueAnimator animator = ValueAnimator.ofFloat(0, degree);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                currentValue = (float) (Math.round((float) animation.getAnimatedValue() * 100)) / 100;
-                invalidate();
-            }
-        });
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-        animator.setDuration(animPlayTime);
-        animator.start();
+        currentValue = degree;
+        invalidate();
     }
 
     protected int dp2px(int dpVal) {
@@ -244,6 +245,11 @@ public class ClockView extends View {
 
     protected int sp2px(int spVal) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spVal, getResources().getDisplayMetrics());
+    }
+
+    public void setTitle(String title) {
+        titleDial = title;
+        invalidate();
     }
 
 }

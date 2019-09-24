@@ -54,7 +54,7 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
         holder.tvPM25.setText(environment.getPm25() + "μg/m³");
         holder.tvPM10.setText(environment.getPm10() + "μg/m³");
         holder.tvFormaldehyde.setText(environment.getFormaldehyde() + "mg/m³");
-        holder.tvCarbonDioxide.setText(environment.getIlluminance() + "lux");
+        holder.tvCarbonDioxide.setText(environment.getCarbonDioxide() + "ppm");
     }
 
     @Override

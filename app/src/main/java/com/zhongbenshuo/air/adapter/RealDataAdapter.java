@@ -41,6 +41,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
     public void onBindViewHolder(ListViewHolder holder, int position) {
         RealData realData = list.get(position);
         holder.cvRealData.setCompleteDegree(realData.getValue());
+        holder.cvRealData.setTitle(realData.getChartName());
     }
 
     @Override

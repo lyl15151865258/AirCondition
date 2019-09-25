@@ -458,10 +458,46 @@ public class MainActivity extends BaseActivity {
                  *    exp:KeyEvent.ACTION_UP
                  */
                 LogUtils.d(TAG, "点击了下键");
+                if (stationList.size() != 0) {
+                    LogUtils.d(TAG, "跳转到下一个");
+                    seconds = 0;
+                    // 跳转到下一个监测点，如果是最后一个，则跳转到第一个
+                    if (selectedStation == stationList.size() - 1) {
+                        // 表示当前选中的是最后一个监测点
+                        LogUtils.d(TAG, "当前在最后一个，跳转到第一个");
+                        selectedStation = 0;
+                    } else if (selectedStation < stationList.size() - 1) {
+                        // 表示当前选中的不是最后一个
+                        LogUtils.d(TAG, "当前不在最后一个，跳转到下一个");
+                        selectedStation++;
+                    }
+                    // 平滑地将这个的item滚动到中间
+                    rvPosition.smoothScrollToPosition(selectedStation);
+                    stationAdapter.setSelectedPosition(selectedStation);
+                    refreshPage(null);
+                }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
                 //向上键
                 LogUtils.d(TAG, "点击了上键");
+                if (stationList.size() != 0) {
+                    LogUtils.d(TAG, "跳转到上一个");
+                    seconds = 0;
+                    // 跳转到上一个监测点，如果是第一个，则跳转到最后一个
+                    if (selectedStation == 0) {
+                        // 表示当前选中的是第一个监测点
+                        LogUtils.d(TAG, "当前在第一一个，跳转到最后个");
+                        selectedStation = stationList.size() - 1;
+                    } else if (selectedStation > 0) {
+                        // 表示当前选中的不是第一个
+                        LogUtils.d(TAG, "当前不在第一个，跳转到上一个");
+                        selectedStation--;
+                    }
+                    // 平滑地将这个的item滚动到中间
+                    rvPosition.smoothScrollToPosition(selectedStation);
+                    stationAdapter.setSelectedPosition(selectedStation);
+                    refreshPage(null);
+                }
                 break;
             case KeyEvent.KEYCODE_0:
                 //数字键0

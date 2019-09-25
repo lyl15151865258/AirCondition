@@ -189,19 +189,22 @@ public class MainActivity extends BaseActivity {
         if (msg.getTag().equals(Constants.SHOW_DATA_WEBSOCKET)) {
             //接收到这个消息说明需要展示数据
             Environment environment = GsonUtils.parseJSON(msg.getMsg(), Environment.class);
-            if (environmentListMap.get(environment.getStation()) == null) {
-                List<Environment> environments = new ArrayList<>();
-                environments.add(0, environment);
-                environmentListMap.put(environment.getStation(), environments);
-            } else {
-                environmentListMap.get(environment.getStation()).add(0, environment);
+            // 通过站号过滤无效的数据（station为0的时候，表示这条数据在服务端解析异常）
+            if (environment.getStation() > 0) {
+                if (environmentListMap.get(environment.getStation()) == null) {
+                    List<Environment> environments = new ArrayList<>();
+                    environments.add(0, environment);
+                    environmentListMap.put(environment.getStation(), environments);
+                } else {
+                    environmentListMap.get(environment.getStation()).add(0, environment);
+                }
+                // 最多保留4条
+                if (environmentListMap.get(environment.getStation()).size() > 4) {
+                    environmentListMap.get(environment.getStation()).remove(0);
+                }
+                // 刷新页面
+                refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState()));
             }
-            // 最多保留4条
-            if (environmentListMap.get(environment.getStation()).size() > 4) {
-                environmentListMap.get(environment.getStation()).remove(0);
-            }
-            // 刷新页面
-            refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState()));
         }
         if (msg.getTag().equals(Constants.SHOW_USER_PHOTO)) {
             //接收到这个消息说明有人按门铃

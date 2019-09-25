@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,240 +8,248 @@
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_40"
-        android:padding="@dimen/dp_3">
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:fontFamily="@font/youyuan"
-            android:text="中本硕机电环境监测系统"
-            android:textColor="@color/gray_5"
-            android:textSize="@dimen/sp_22"
-            android:textStyle="bold" />
-
-        <TextClock
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:format12Hour="yyyy-MM-dd EEEE HH:mm:ss"
-            android:format24Hour="yyyy-MM-dd EEEE HH:mm:ss"
-            android:text="2019-09-04 星期三 22:22:22"
-            android:textColor="@color/gray_5"
-            android:textSize="@dimen/sp_12" />
-
-    </RelativeLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_2"
-        android:background="@color/divider" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvPosition"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:overScrollMode="never"
-            android:scrollbars="none" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_40"
+            android:padding="@dimen/dp_3">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/youyuan"
+                android:text="中本硕机电环境监测系统"
+                android:textColor="@color/gray_5"
+                android:textSize="@dimen/sp_22"
+                android:textStyle="bold" />
+
+            <TextClock
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:format12Hour="yyyy-MM-dd EEEE HH:mm:ss"
+                android:format24Hour="yyyy-MM-dd EEEE HH:mm:ss"
+                android:text="2019-09-04 星期三 22:22:22"
+                android:textColor="@color/gray_5"
+                android:textSize="@dimen/sp_12" />
+
+        </RelativeLayout>
 
         <View
-            android:layout_width="@dimen/dp_2"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_2"
             android:background="@color/divider" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center">
-
-                    <com.zhongbenshuo.air.widget.ClockView
-                        android:id="@+id/cvIlluminance"
-                        android:layout_width="@dimen/dp_120"
-                        android:layout_height="@dimen/dp_120"
-                        android:visibility="gone"
-                        app:color_dial_high="@color/red_600"
-                        app:color_dial_lower="@color/green_600"
-                        app:color_dial_middle="@color/orange_600"
-                        app:stroke_width_dial="@dimen/dp_4"
-                        app:text_size_dial="@dimen/sp_8"
-                        app:text_size_value="@dimen/sp_12"
-                        app:text_title_color="@color/gray_5"
-                        app:text_title_dial=""
-                        app:text_title_size="@dimen/sp_12" />
-
-                </LinearLayout>
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rvRealTime"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:overScrollMode="never"
-                    android:scrollbars="none" />
-
-            </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvPosition"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:overScrollMode="never"
+                android:scrollbars="none" />
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_2"
+                android:layout_width="@dimen/dp_2"
+                android:layout_height="match_parent"
                 android:background="@color/divider" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
                 android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
                     android:orientation="horizontal">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="时间"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="@dimen/dp_1"
                         android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="温度"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
+                        android:gravity="center">
 
-                    <View
-                        android:layout_width="@dimen/dp_1"
+                        <com.zhongbenshuo.air.widget.ClockView
+                            android:id="@+id/cvIlluminance"
+                            android:layout_width="@dimen/dp_120"
+                            android:layout_height="@dimen/dp_120"
+                            android:visibility="gone"
+                            app:color_dial_high="@color/red_600"
+                            app:color_dial_lower="@color/green_600"
+                            app:color_dial_middle="@color/orange_600"
+                            app:stroke_width_dial="@dimen/dp_4"
+                            app:text_size_dial="@dimen/sp_8"
+                            app:text_size_value="@dimen/sp_12"
+                            app:text_title_color="@color/gray_5"
+                            app:text_title_dial=""
+                            app:text_title_size="@dimen/sp_12" />
+
+                    </LinearLayout>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvRealTime"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="湿度"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="@dimen/dp_1"
-                        android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="PM2.5"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="@dimen/dp_1"
-                        android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="PM10"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="@dimen/dp_1"
-                        android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="甲醛"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="@dimen/dp_1"
-                        android:layout_height="match_parent"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:padding="@dimen/dp_3"
-                        android:text="二氧化碳"
-                        android:textColor="@color/gray_5"
-                        android:textSize="@dimen/sp_12"
-                        android:textStyle="bold" />
+                        android:layout_weight="2"
+                        android:overScrollMode="never"
+                        android:scrollbars="none" />
 
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_1"
+                    android:layout_height="@dimen/dp_2"
                     android:background="@color/divider" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rvHistory"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:overScrollMode="never"
-                    android:scrollbars="none" />
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="时间"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="温度"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="湿度"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="PM2.5"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="PM10"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="甲醛"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="@dimen/dp_1"
+                            android:layout_height="match_parent"
+                            android:background="@color/divider" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:padding="@dimen/dp_3"
+                            android:text="二氧化碳"
+                            android:textColor="@color/gray_5"
+                            android:textSize="@dimen/sp_12"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_1"
+                        android:background="@color/divider" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:overScrollMode="never"
+                        android:scrollbars="none" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -249,4 +257,11 @@
 
     </LinearLayout>
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/ivUser"
+        android:layout_width="@dimen/dp_180"
+        android:layout_height="@dimen/dp_180"
+        android:layout_gravity="end|bottom"
+        android:contentDescription="@null" />
+
+</FrameLayout>

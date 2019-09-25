@@ -1,10 +1,11 @@
 package com.zhongbenshuo.air;
 
 import android.app.Application;
+import android.util.SparseArray;
 
-import com.tencent.smtt.sdk.QbSdk;
+import com.zhongbenshuo.air.contentprovider.SPHelper;
 import com.zhongbenshuo.air.utils.CrashHandler;
-import com.zhongbenshuo.air.utils.LogUtils;
+import com.zhongbenshuo.air.utils.encrypt.RSAUtils;
 
 /**
  * Application类
@@ -17,15 +18,33 @@ import com.zhongbenshuo.air.utils.LogUtils;
 public class AirApplication extends Application {
 
     private static AirApplication instance;
+    public static String publicKeyString, privateKeyString;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        SPHelper.init(this);
         // 捕捉异常
         CrashHandler.getInstance().init(this);
-        //初始化腾讯X5浏览器内核
-        initX5WebView();
+        // 初始化加密秘钥
+        initKey();
+    }
+
+    private void initKey() {
+        new Thread(() -> {
+            // 生成RSA密钥对
+            SparseArray<String> keyMap = null;
+            try {
+                keyMap = RSAUtils.genKeyPair(1024);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (keyMap != null) {
+                publicKeyString = keyMap.get(0);
+                privateKeyString = keyMap.get(1);
+            }
+        }).start();
     }
 
     /**
@@ -38,27 +57,6 @@ public class AirApplication extends Application {
             instance = new AirApplication();
         }
         return instance;
-    }
-
-    /**
-     * 初始化腾讯X5内核
-     */
-    private void initX5WebView() {
-        //搜集本地TBS内核信息并上报服务器，服务器返回结果决定使用哪个内核。
-        QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
-            @Override
-            public void onViewInitFinished(boolean arg0) {
-                //x5內核初始化完成的回调，为true表示x5内核加载成功，否则表示x5内核加载失败，会自动切换到系统内核。
-                LogUtils.d("X5WebView", "onViewInitFinished is " + arg0);
-            }
-
-            @Override
-            public void onCoreInitFinished() {
-
-            }
-        };
-        //x5内核初始化接口
-        QbSdk.initX5Environment(getApplicationContext(), cb);
     }
 
 }

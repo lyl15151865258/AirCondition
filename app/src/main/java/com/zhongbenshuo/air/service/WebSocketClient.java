@@ -51,6 +51,11 @@ public class WebSocketClient extends org.java_websocket.client.WebSocketClient {
                     msg.setTag(Constants.SHOW_DATA_WEBSOCKET);
                     msg.setMsg(GsonUtils.convertJSON(websocket.getMessage()));
                     EventBus.getDefault().post(msg);
+                }else if (getObject(websocket) instanceof String){
+                    EventMsg msg = new EventMsg();
+                    msg.setTag(Constants.SHOW_USER_PHOTO);
+                    msg.setMsg((String)websocket.getMessage());
+                    EventBus.getDefault().post(msg);
                 }
             }
         }
@@ -80,6 +85,8 @@ public class WebSocketClient extends org.java_websocket.client.WebSocketClient {
                     e.printStackTrace();
                 }
                 break;
+            case 20001://有人按门铃，在大屏展示
+                return websocket.getMessage();
             default:
                 return false;
         }

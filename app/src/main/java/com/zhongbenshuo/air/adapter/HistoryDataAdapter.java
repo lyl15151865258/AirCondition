@@ -49,12 +49,56 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
     public void onBindViewHolder(ListViewHolder holder, int position) {
         Environment environment = list.get(position);
         holder.tvTime.setText(TimeUtils.normalFormat(environment.getCreateTime(), "yyyy-MM-dd HH:mm:ss", "HH:mm:ss"));
+        // 温度
         holder.tvTemperature.setText(environment.getTemperature() + "℃");
+        if (environment.getTemperature() >= 15 && environment.getTemperature() <= 28) {
+            holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else if (environment.getTemperature() < 15) {
+            holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_low));
+        } else {
+            holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
+        // 湿度
         holder.tvHumidity.setText(environment.getHumidity() + "%");
+        if (environment.getHumidity() >= 40 && environment.getHumidity() <= 70) {
+            holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else if (environment.getHumidity() < 40) {
+            holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_dry));
+        } else {
+            holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
+        // PM2.5
         holder.tvPM25.setText(environment.getPm25() + "μg/m³");
+        if (environment.getPm25() <= 75) {
+            holder.tvPM25.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else if (environment.getPm25() > 75 && environment.getPm25() <= 150) {
+            holder.tvPM25.setTextColor(mContext.getResources().getColor(R.color.orange_600));
+        } else {
+            holder.tvPM25.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
+        // PM10
         holder.tvPM10.setText(environment.getPm10() + "μg/m³");
+        if (environment.getPm25() <= 150) {
+            holder.tvPM10.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else {
+            holder.tvPM10.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
+        // 甲醛
         holder.tvFormaldehyde.setText(environment.getFormaldehyde() + "mg/m³");
+        if (environment.getFormaldehyde() <= 0.08) {
+            holder.tvFormaldehyde.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else {
+            holder.tvFormaldehyde.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
+        // 二氧化碳
         holder.tvCarbonDioxide.setText(environment.getCarbonDioxide() + "ppm");
+        if (environment.getCarbonDioxide() <= 450) {
+            holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.value_normal));
+        } else if (environment.getCarbonDioxide() > 450 && environment.getCarbonDioxide() <= 1000) {
+            holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.orange_600));
+        } else {
+            holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.value_high));
+        }
     }
 
     @Override

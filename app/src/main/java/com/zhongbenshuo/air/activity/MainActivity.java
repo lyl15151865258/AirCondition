@@ -2,28 +2,45 @@ package com.zhongbenshuo.air.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.zhongbenshuo.air.R;
 import com.zhongbenshuo.air.adapter.HistoryDataAdapter;
 import com.zhongbenshuo.air.adapter.RealDataAdapter;
 import com.zhongbenshuo.air.adapter.StationAdapter;
 import com.zhongbenshuo.air.bean.Environment;
 import com.zhongbenshuo.air.bean.EventMsg;
+import com.zhongbenshuo.air.bean.OpenAndCloseDoorRecord;
 import com.zhongbenshuo.air.bean.RealData;
+import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.bean.Station;
 import com.zhongbenshuo.air.constant.Constants;
+import com.zhongbenshuo.air.constant.ErrorCode;
+import com.zhongbenshuo.air.constant.NetWork;
+import com.zhongbenshuo.air.glide.RoundedCornersTransformation;
+import com.zhongbenshuo.air.network.ExceptionHandle;
+import com.zhongbenshuo.air.network.NetClient;
+import com.zhongbenshuo.air.network.NetworkObserver;
 import com.zhongbenshuo.air.service.WebSocketService;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
+import com.zhongbenshuo.air.utils.NetworkUtil;
+import com.zhongbenshuo.air.utils.TimeUtils;
 import com.zhongbenshuo.air.widget.ClockView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,6 +51,14 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+import static com.zhongbenshuo.air.glide.RoundedCornersTransformation.CENTER_CROP;
+import static com.zhongbenshuo.air.glide.RoundedCornersTransformation.CORNER_ALL;
 
 /**
  * 主页面，环境监测页面
@@ -56,6 +81,7 @@ public class MainActivity extends BaseActivity {
     private RealDataAdapter realDataAdapter;
     private int selectedStation = 0;
     private ClockView cvIlluminance;
+    private ImageView ivUser;
 
     private static boolean flag = true;
     // 用于自动点击Item的定时任务
@@ -66,6 +92,9 @@ public class MainActivity extends BaseActivity {
 
     // 定时任务执行时间
     private static volatile long seconds = 0;
+    private static volatile int photoShowTime = 0;
+
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +128,22 @@ public class MainActivity extends BaseActivity {
         rvRealTime.setAdapter(realDataAdapter);
 
         cvIlluminance = findViewById(R.id.cvIlluminance);
+        ivUser = findViewById(R.id.ivUser);
+
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 对于Android 8.0+
+            AudioFocusRequest audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                    .setOnAudioFocusChangeListener(focusChangeListener).build();
+            audioFocusRequest.acceptsDelayedFocusGain();
+            audioManager.requestAudioFocus(audioFocusRequest);
+        } else {
+            // 小于Android 8.0
+            int result = audioManager.requestAudioFocus(focusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                // could not get audio focus.
+            }
+        }
 
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -157,6 +202,23 @@ public class MainActivity extends BaseActivity {
             }
             // 刷新页面
             refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState()));
+        }
+        if (msg.getTag().equals(Constants.SHOW_USER_PHOTO)) {
+            //接收到这个消息说明有人按门铃
+            String url = msg.getMsg();
+            if (!TextUtils.isEmpty(url)) {
+                ivUser.setWillNotDraw(false);
+                ivUser.setVisibility(View.VISIBLE);
+                LogUtils.d(TAG, "展示照片：" + "http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/"));
+                RoundedCornersTransformation roundedCornersTransformation = new RoundedCornersTransformation(10, 0, CORNER_ALL, CENTER_CROP);
+                RequestOptions options = new RequestOptions().dontAnimate().transform(roundedCornersTransformation);
+                Glide.with(mContext).load("http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/")).apply(options).into(ivUser);
+            }
+            // 播放门铃音乐
+            mediaPlayer = MediaPlayer.create(mContext, R.raw.bell);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.start();
+            photoShowTime = 0;
         }
     }
 
@@ -236,6 +298,7 @@ public class MainActivity extends BaseActivity {
                     e.printStackTrace();
                 }
                 seconds++;
+                photoShowTime++;
             }
             return null;
         }
@@ -265,12 +328,185 @@ public class MainActivity extends BaseActivity {
                 mainActivity.stationAdapter.setSelectedPosition(mainActivity.selectedStation);
                 mainActivity.refreshPage(null);
             }
+            if (photoShowTime == 5) {
+                mainActivity.ivUser.setWillNotDraw(true);
+                mainActivity.ivUser.setVisibility(View.GONE);
+                if (mainActivity.mediaPlayer != null) {
+                    mainActivity.mediaPlayer.stop();
+                    mainActivity.mediaPlayer.release();
+                    mainActivity.mediaPlayer = null;
+                }
+                photoShowTime = 0;
+            }
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
         }
+    }
+
+    //焦点问题
+    private AudioManager.OnAudioFocusChangeListener focusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    // 长时间失去
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                    }
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    // 短时间失去
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.pause();
+                    }
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    // 暂时失去 audio focus，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.setVolume(0.1f, 0.1f);
+                    }
+                    break;
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    // 获得音频焦点
+                    if (mediaPlayer == null) {
+                        mediaPlayer = new MediaPlayer();
+                    } else if (!mediaPlayer.isPlaying()) {
+                        mediaPlayer.start();
+                    }
+                    mediaPlayer.setVolume(1.0f, 1.0f);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    /**
+     * 开关门
+     *
+     * @param status 1、开  2、关
+     */
+    private void openAndCloseDoorRecord(int status) {
+        OpenAndCloseDoorRecord openAndCloseDoorRecord = new OpenAndCloseDoorRecord();
+        openAndCloseDoorRecord.setUser_id(999999999);
+        openAndCloseDoorRecord.setCreateTime(TimeUtils.getCurrentDateTime());
+        openAndCloseDoorRecord.setStatus(status);
+
+        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
+        resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Result>(this) {
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                //接下来可以检查网络连接等操作
+                if (!NetworkUtil.isNetworkAvailable(mContext)) {
+                    showToast("当前网络不可用，请检查网络");
+                }
+            }
+
+            @Override
+            public void onError(ExceptionHandle.ResponseThrowable responseThrowable) {
+                showToast(responseThrowable.message);
+            }
+
+            @Override
+            public void onNext(Result result) {
+                super.onNext(result);
+                if (result.getCode() == ErrorCode.SUCCESS) {
+                    if (status == 1) {
+                        showToast("开门成功");
+                    } else {
+                        showToast("关门成功");
+                    }
+                } else if (result.getCode() == ErrorCode.FAIL) {
+                    if (status == 1) {
+                        showToast("开门失败");
+                    } else {
+                        showToast("关门失败");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                //确定键enter
+                LogUtils.d(TAG, "点击了确定键");
+                // 开门
+                openAndCloseDoorRecord(1);
+                break;
+            case KeyEvent.KEYCODE_BACK:
+                //返回键
+                //这里由于break会退出，所以我们自己要处理掉 不返回上一层
+                LogUtils.d(TAG, "点击了返回键");
+                return true;
+            case KeyEvent.KEYCODE_SETTINGS:
+                //设置键
+                LogUtils.d(TAG, "点击了设置键");
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                //向下键
+                /*    实际开发中有时候会触发两次，所以要判断一下按下时触发 ，松开按键时不触发
+                 *    exp:KeyEvent.ACTION_UP
+                 */
+                LogUtils.d(TAG, "点击了下键");
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                //向上键
+                LogUtils.d(TAG, "点击了上键");
+                break;
+            case KeyEvent.KEYCODE_0:
+                //数字键0
+                LogUtils.d(TAG, "点击了数字键0");
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                //向左键
+                LogUtils.d(TAG, "点击了左键");
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                //向右键
+                LogUtils.d(TAG, "点击了右键");
+                break;
+            case KeyEvent.KEYCODE_INFO:
+                //info键
+                LogUtils.d(TAG, "点击了Info键");
+                break;
+            case KeyEvent.KEYCODE_PAGE_DOWN:
+            case KeyEvent.KEYCODE_MEDIA_NEXT:
+                //向下翻页键
+                LogUtils.d(TAG, "点击了向下翻页键");
+                break;
+            case KeyEvent.KEYCODE_PAGE_UP:
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                //向上翻页键
+                LogUtils.d(TAG, "点击了向上翻页键");
+                break;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                //调大声音键
+                LogUtils.d(TAG, "点击了音量增大键");
+                break;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                //降低声音键
+                LogUtils.d(TAG, "点击了音量减小键");
+                break;
+            case KeyEvent.KEYCODE_VOLUME_MUTE:
+                //禁用声音
+                LogUtils.d(TAG, "点击了禁音键");
+                break;
+            default:
+                break;
+        }
+
+        return super.onKeyDown(keyCode, event);
+
     }
 
     @Override
@@ -282,6 +518,11 @@ public class MainActivity extends BaseActivity {
         if (syncTimeTask != null) {
             syncTimeTask.cancel(true);
             syncTimeTask = null;
+        }
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
         }
         super.onDestroy();
     }

@@ -59,7 +59,7 @@
 
         <activity
             android:name=".activity.LogoActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="reverseLandscape"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,11 +73,17 @@
 
         <activity
             android:name=".activity.MainActivity"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="reverseLandscape" />
 
-        <!-- WebSocket通信服务服务 -->
+        <!-- WebSocket通信服务 -->
         <service
             android:name=".service.WebSocketService"
+            android:enabled="true"
+            android:persistent="true" />
+
+        <!-- 定时任务服务 -->
+        <service
+            android:name=".service.TimeTaskService"
             android:enabled="true"
             android:persistent="true" />
 

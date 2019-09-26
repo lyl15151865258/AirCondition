@@ -68,7 +68,7 @@ public class AESUtils {
      */
     public static String encrypt(String content) {
         try {
-            return base64Encode(aesEncryptToBytes(content, NetWork.KEY));
+            return base64Encode(aesEncryptToBytes(content, NetWork.ENCRYPT_KEY));
         } catch (Exception e) {
             e.printStackTrace();
             return e.getMessage();
@@ -110,7 +110,7 @@ public class AESUtils {
      * @return 解密后的string
      */
     public static String decrypt(String encryptStr) throws Exception {
-        return encryptStr == null || "".equals(encryptStr) ? "" : aesDecryptByBytes(base64Decode(encryptStr), NetWork.KEY);
+        return encryptStr == null || "".equals(encryptStr) ? "" : aesDecryptByBytes(base64Decode(encryptStr), NetWork.ENCRYPT_KEY);
     }
 
     /**

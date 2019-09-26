@@ -75,6 +75,11 @@ public class NetClient {
     public static final String BASE_URL = "http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/";
 
     /**
+     * 高德天气基础Url
+     */
+    public static final String BASE_URL_WEATHER = "https://restapi.amap.com/v3/";
+
+    /**
      * 拼接通用基础Url
      *
      * @param serverHost  IP地址（域名）
@@ -363,7 +368,7 @@ public class NetClient {
                 mNetClient = new NetClient(baseUrl, false);
                 defaultUrl = baseUrl;
             }
-            LogUtils.d(TAG, "BaseUrl" + baseUrl);
+            LogUtils.d(TAG, "请求接口：" + baseUrl);
             return mNetClient;
         }
     }

@@ -2,11 +2,14 @@ package com.zhongbenshuo.air.network;
 
 import com.zhongbenshuo.air.bean.OpenAndCloseDoorRecord;
 import com.zhongbenshuo.air.bean.Result;
+import com.zhongbenshuo.air.bean.Weather;
 
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Url;
@@ -36,6 +39,15 @@ public interface ZbsApi {
      */
     @POST("user/openAndCloseDoorRecord.do")
     Observable<Result> openAndCloseDoorRecord(@Body OpenAndCloseDoorRecord params);
+
+    /**
+     * 高德天气接口
+     *
+     * @return 返回值
+     */
+    @POST("weather/weatherInfo")
+    @FormUrlEncoded
+    Observable<Weather> searchWeather(@Field("key") String key, @Field("city") String city, @Field("extensions") String extensions, @Field("output") String output);
 
     /**
      * 下载软件

@@ -6,4 +6,7 @@
     <string name="RealTimeSyncService">环境监测同步服务正在运行</string>
     <string name="RealTimeSyncServiceRunning">环境监测同步服务正在运行</string>
 
+    <string name="TimeTaskService">定时任务服务正在运行</string>
+    <string name="TimeTaskServiceRunning">定时任务服务正在运行</string>
+
 </resources>

@@ -10,7 +10,9 @@ package com.zhongbenshuo.air.constant;
 
 public class NetWork {
 
-    public static final String KEY = "IZnqNJqgLwPLO9LxMP23xZNmHHq55AmB";
+    public static final String ENCRYPT_KEY = "IZnqNJqgLwPLO9LxMP23xZNmHHq55AmB";
+
+    public static final String GAODE_WEB = "44ddde264031cd076a84b3d16bebcaf9";
 
     //主账号IP地址
     public static final String SERVER_HOST_MAIN = "106.12.55.177";

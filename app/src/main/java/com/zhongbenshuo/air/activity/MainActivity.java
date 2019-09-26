@@ -15,7 +15,10 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -29,6 +32,7 @@ import com.zhongbenshuo.air.bean.OpenAndCloseDoorRecord;
 import com.zhongbenshuo.air.bean.RealData;
 import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.bean.Station;
+import com.zhongbenshuo.air.bean.Weather;
 import com.zhongbenshuo.air.constant.Constants;
 import com.zhongbenshuo.air.constant.ErrorCode;
 import com.zhongbenshuo.air.constant.NetWork;
@@ -36,6 +40,7 @@ import com.zhongbenshuo.air.glide.RoundedCornersTransformation;
 import com.zhongbenshuo.air.network.ExceptionHandle;
 import com.zhongbenshuo.air.network.NetClient;
 import com.zhongbenshuo.air.network.NetworkObserver;
+import com.zhongbenshuo.air.service.TimeTaskService;
 import com.zhongbenshuo.air.service.WebSocketService;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
@@ -81,7 +86,8 @@ public class MainActivity extends BaseActivity {
     private RealDataAdapter realDataAdapter;
     private int selectedStation = 0;
     private ClockView cvIlluminance;
-    private ImageView ivUser;
+    private ImageView ivWeather, ivUser;
+    private TextView tvCity, tvWeather, tvTemperature, tvWind, tvHumidity;
 
     private static boolean flag = true;
     // 用于自动点击Item的定时任务
@@ -99,6 +105,8 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         mContext = this;
         environmentListMap = new SparseArray<>();
@@ -128,7 +136,14 @@ public class MainActivity extends BaseActivity {
         rvRealTime.setAdapter(realDataAdapter);
 
         cvIlluminance = findViewById(R.id.cvIlluminance);
+        ivWeather = findViewById(R.id.ivWeather);
         ivUser = findViewById(R.id.ivUser);
+
+        tvCity = findViewById(R.id.tvCity);
+        tvWeather = findViewById(R.id.tvWeather);
+        tvTemperature = findViewById(R.id.tvTemperature);
+        tvWind = findViewById(R.id.tvWind);
+        tvHumidity = findViewById(R.id.tvHumidity);
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -149,6 +164,7 @@ public class MainActivity extends BaseActivity {
             EventBus.getDefault().register(this);
         }
         initWebSocketService();
+        initTimeTaskService();
 
         syncTimeTask = new SyncTimeTask(this);
         syncTimeTask.execute();
@@ -223,6 +239,95 @@ public class MainActivity extends BaseActivity {
             mediaPlayer.start();
             photoShowTime = 0;
         }
+        if (msg.getTag().equals(Constants.SHOW_WEATHER)) {
+            //接收到实时天气信息
+            LogUtils.d(TAG, "获取到实时天气信息");
+            Weather weather = GsonUtils.parseJSON(msg.getMsg(), Weather.class);
+            if (weather.getStatus().equals("1") && weather.getInfocode().equals("10000") && Integer.valueOf(weather.getCount()) > 0) {
+                Weather.Lives lives = weather.getLives().get(0);
+
+                tvCity.setText(lives.getCity());
+                tvWeather.setText(lives.getWeather());
+                tvTemperature.setText(lives.getTemperature() + "℃");
+                if (lives.getWinddirection().equals("无风向") || lives.getWinddirection().equals("旋转不定")) {
+                    tvWind.setText(lives.getWinddirection());
+                } else {
+                    tvWind.setText(lives.getWinddirection() + "风" + lives.getWindpower() + "级");
+                }
+                tvHumidity.setText("湿度" + lives.getHumidity() + "%");
+
+                ivWeather.setVisibility(View.VISIBLE);
+                if ("晴".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.qinw);
+                } else if ("多云".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.duoyunw);
+                } else if ("阴".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.yinw);
+                } else if ("阵雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhenyuw);
+                } else if ("雷阵雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.leizhenyuw);
+                } else if ("雷阵雨伴有冰雹".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.leizhenyubanyoubinpaow);
+                } else if ("雨夹雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.yujiaxuew);
+                } else if ("小雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.xiaoyuw);
+                } else if ("中雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhongyuw);
+                } else if ("大雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.dayuw);
+                } else if ("暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.baoyuw);
+                } else if ("大暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.dabaoyuw);
+                } else if ("特大暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.tedabaoyuw);
+                } else if ("阵雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhenxuew);
+                } else if ("小雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.xiaoxuew);
+                } else if ("中雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhongxuew);
+                } else if ("大雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.daxuew);
+                } else if ("暴雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.baoxuew);
+                } else if ("雾".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.wuw);
+                } else if ("冻雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.dongyuw);
+                } else if ("沙尘暴".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.shachenbaow);
+                } else if ("小到中雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhongyuw);
+                } else if ("中到大雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.dayuw);
+                } else if ("大到暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.baoyuw);
+                } else if ("暴雨到大暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.dabaoyuw);
+                } else if ("大暴雨到特大暴雨".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.tedabaoyuw);
+                } else if ("小到中雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.zhongxuew);
+                } else if ("中到大雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.daxuew);
+                } else if ("大到暴雪".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.baoxuew);
+                } else if ("浮尘".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.fuchenw);
+                } else if ("扬沙".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.yangshaw);
+                } else if ("强沙尘暴".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.qiangshachenbaow);
+                } else if ("霾".equals(lives.getWeather())) {
+                    ivWeather.setImageResource(R.drawable.maiw);
+                } else {
+                    ivWeather.setVisibility(View.GONE);
+                }
+            }
+        }
     }
 
     /**
@@ -267,6 +372,18 @@ public class MainActivity extends BaseActivity {
      */
     private void initWebSocketService() {
         Intent intent = new Intent(mContext, WebSocketService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    /**
+     * 初始化并绑定TimeTaskService
+     */
+    private void initTimeTaskService() {
+        Intent intent = new Intent(mContext, TimeTaskService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent);
         } else {

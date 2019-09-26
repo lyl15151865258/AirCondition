@@ -2,16 +2,12 @@ package com.zhongbenshuo.air.utils;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.text.format.DateFormat;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.DatePicker;
-import android.widget.FrameLayout;
 import android.widget.TextView;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -159,6 +155,17 @@ public class TimeUtils {
      */
     public static String getCurrentTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss", Locale.CHINA);
+        Date curDate = new Date(System.currentTimeMillis());
+        return formatter.format(curDate);
+    }
+
+    /**
+     * 得到系统当前时分秒（不带秒）
+     *
+     * @return 当前时间（时分）
+     */
+    public static String getCurrentTimeWithoutSecond() {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm", Locale.CHINA);
         Date curDate = new Date(System.currentTimeMillis());
         return formatter.format(curDate);
     }

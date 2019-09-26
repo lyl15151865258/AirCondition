@@ -54,4 +54,5 @@ public class Constants {
     public static final String SHOW_DATA_SOCKET = "showData_socket";
     public static final String SHOW_DATA_WEBSOCKET = "showData_webSocket";
     public static final String SHOW_USER_PHOTO = "showUserPhoto";
+    public static final String SHOW_WEATHER = "showWeather";
 }

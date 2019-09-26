@@ -92,9 +92,9 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
         }
         // 二氧化碳
         holder.tvCarbonDioxide.setText(environment.getCarbonDioxide() + "ppm");
-        if (environment.getCarbonDioxide() <= 450) {
+        if (environment.getCarbonDioxide() <= 1000) {
             holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.value_normal));
-        } else if (environment.getCarbonDioxide() > 450 && environment.getCarbonDioxide() <= 1000) {
+        } else if (environment.getCarbonDioxide() > 1000 && environment.getCarbonDioxide() <= 2000) {
             holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.orange_600));
         } else {
             holder.tvCarbonDioxide.setTextColor(mContext.getResources().getColor(R.color.value_high));

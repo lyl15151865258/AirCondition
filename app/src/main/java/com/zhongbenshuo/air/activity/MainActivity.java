@@ -212,7 +212,7 @@ public class MainActivity extends BaseActivity {
                 }
                 // 最多保留4条
                 if (environmentListMap.get(environment.getStation()).size() > 4) {
-                    environmentListMap.get(environment.getStation()).remove(0);
+                    environmentListMap.get(environment.getStation()).remove(environmentListMap.get(environment.getStation()).size() - 1);
                 }
                 // 刷新页面
                 refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState()));
@@ -222,7 +222,6 @@ public class MainActivity extends BaseActivity {
             //接收到这个消息说明有人按门铃
             String url = msg.getMsg();
             if (!TextUtils.isEmpty(url)) {
-                ivUser.setWillNotDraw(false);
                 ivUser.setVisibility(View.VISIBLE);
                 LogUtils.d(TAG, "展示照片：" + "http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/"));
                 RoundedCornersTransformation roundedCornersTransformation = new RoundedCornersTransformation(10, 0, CORNER_ALL, CENTER_CROP);
@@ -445,7 +444,6 @@ public class MainActivity extends BaseActivity {
                 mainActivity.refreshPage(null);
             }
             if (photoShowTime == 5) {
-                mainActivity.ivUser.setWillNotDraw(true);
                 mainActivity.ivUser.setVisibility(View.GONE);
                 if (mainActivity.mediaPlayer != null) {
                     mainActivity.mediaPlayer.stop();

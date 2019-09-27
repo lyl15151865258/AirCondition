@@ -2,6 +2,10 @@ package com.zhongbenshuo.air.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+
+import com.zhongbenshuo.air.service.TimeTaskService;
+import com.zhongbenshuo.air.service.WebSocketService;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -91,6 +95,12 @@ public class ActivityController {
      * 退出程序
      */
     public static void exit(Context context) {
+
+        // 停止服务
+        Intent intent = new Intent(context, WebSocketService.class);
+        context.stopService(intent);
+        Intent intent1 = new Intent(context, TimeTaskService.class);
+        context.stopService(intent1);
 
         List<Activity> delList = new ArrayList<>();
         for (Activity activity : activities) {

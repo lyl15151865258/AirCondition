@@ -57,6 +57,7 @@ public class LogoActivity extends BaseActivity {
 
             @Override
             public void onError(ExceptionHandle.ResponseThrowable responseThrowable) {
+                openActivity(MainActivity.class);
                 ActivityController.finishActivity(LogoActivity.this);
             }
 

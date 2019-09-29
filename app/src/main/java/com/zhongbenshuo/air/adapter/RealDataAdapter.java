@@ -77,7 +77,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_PM25:
                 // PM2.5
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.orange_600), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 300, 75, 150);
+                holder.cvRealData.setValue(0, 350, 75, 150);
                 if (realData.getValue() <= 35) {
                     holder.tvStatus.setText("低");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
@@ -101,7 +101,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_PM10:
                 // PM10
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 200, 50, 150);
+                holder.cvRealData.setValue(0, 350, 50, 150);
                 if (realData.getValue() <= 50) {
                     holder.tvStatus.setText("低");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);

@@ -78,7 +78,7 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
         }
         // PM10
         holder.tvPM10.setText(environment.getPm10() + "μg/m³");
-        if (environment.getPm25() <= 150) {
+        if (environment.getPm10() <= 150) {
             holder.tvPM10.setTextColor(mContext.getResources().getColor(R.color.value_normal));
         } else {
             holder.tvPM10.setTextColor(mContext.getResources().getColor(R.color.value_high));

@@ -15,19 +15,34 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_40"
+            android:layout_height="@dimen/dp_30"
             android:padding="@dimen/dp_3">
 
-            <TextView
-                android:id="@+id/tvTitle"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:fontFamily="@font/youyuan"
-                android:text="中本硕机电环境监测系统"
-                android:textColor="@color/gray_5"
-                android:textSize="@dimen/sp_22"
-                android:textStyle="bold" />
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_18"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/logo_white" />
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/youyuan"
+                    android:text="中本硕机电环境监测系统"
+                    android:textColor="@color/gray_5"
+                    android:textSize="@dimen/sp_18"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextClock
                 android:layout_width="wrap_content"
@@ -38,7 +53,7 @@
                 android:format24Hour="yyyy-MM-dd EEEE HH:mm:ss"
                 android:text="2019-09-04 星期三 22:22:22"
                 android:textColor="@color/gray_5"
-                android:textSize="@dimen/sp_12" />
+                android:textSize="@dimen/sp_11" />
 
         </RelativeLayout>
 
@@ -74,7 +89,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="2"
+                    android:layout_weight="1"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -183,7 +198,8 @@
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rvRealTime"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="2"
                         android:overScrollMode="never"
                         android:scrollbars="none" />
@@ -197,8 +213,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -214,7 +229,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="时间"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -230,7 +245,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="温度"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -246,7 +261,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="湿度"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -262,7 +277,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="PM2.5"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -278,7 +293,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="PM10"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -294,7 +309,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="甲醛"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                         <View
@@ -310,7 +325,7 @@
                             android:padding="@dimen/dp_3"
                             android:text="二氧化碳"
                             android:textColor="@color/gray_5"
-                            android:textSize="@dimen/sp_12"
+                            android:textSize="@dimen/sp_11"
                             android:textStyle="bold" />
 
                     </LinearLayout>
@@ -323,8 +338,7 @@
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rvHistory"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="@dimen/dp_84"
                         android:overScrollMode="never"
                         android:scrollbars="none" />
 

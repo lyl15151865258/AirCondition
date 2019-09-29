@@ -511,7 +511,7 @@ public class MainActivity extends BaseActivity {
         openAndCloseDoorRecord.setCreateTime(TimeUtils.getCurrentDateTime());
         openAndCloseDoorRecord.setStatus(status);
 
-        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
+        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, true,true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
         resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Result>(this) {
 
             @Override

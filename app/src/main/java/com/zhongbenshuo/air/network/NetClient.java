@@ -91,7 +91,7 @@ public class NetClient {
         return "http://" + serverHost + ":" + httpPort + "/" + serviceName + "/";
     }
 
-    private NetClient(String baseUrl, boolean encrypt) {
+    private NetClient(String baseUrl, boolean needCache, boolean encrypt) {
 
         // log用拦截器
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -145,31 +145,56 @@ public class NetClient {
         // 根据是否需要加密确定是否加入DataEncryptInterceptor拦截器
         if (encrypt) {
             LogUtils.d(TAG, "走加密的请求");
-            okHttpClient = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .addInterceptor(cacheInterceptor)
-                    .addInterceptor(dataEncryptInterceptor)
-                    .cache(cache)
-                    //设置超时时间
-                    .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    //错误重连
-                    .retryOnConnectionFailure(true)
-                    .build();
+            if (needCache) {
+                okHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        .addInterceptor(cacheInterceptor)
+                        .addInterceptor(dataEncryptInterceptor)
+                        .cache(cache)
+                        //设置超时时间
+                        .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        //错误重连
+                        .retryOnConnectionFailure(true)
+                        .build();
+            } else {
+                okHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        .addInterceptor(dataEncryptInterceptor)
+                        //设置超时时间
+                        .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        //错误重连
+                        .retryOnConnectionFailure(true)
+                        .build();
+            }
         } else {
             LogUtils.d(TAG, "走不加密的请求");
-            okHttpClient = new OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
-                    .addInterceptor(cacheInterceptor)
-                    .cache(cache)
-                    //设置超时时间
-                    .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
-                    //错误重连
-                    .retryOnConnectionFailure(true)
-                    .build();
+            if (needCache) {
+                okHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        .addInterceptor(cacheInterceptor)
+                        .cache(cache)
+                        //设置超时时间
+                        .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        //错误重连
+                        .retryOnConnectionFailure(true)
+                        .build();
+            } else {
+                okHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(loggingInterceptor)
+                        //设置超时时间
+                        .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
+                        //错误重连
+                        .retryOnConnectionFailure(true)
+                        .build();
+            }
         }
 
         //设置Gson的非严格模式
@@ -351,21 +376,22 @@ public class NetClient {
     /**
      * 获取单例的NetClient对象
      *
-     * @param baseUrl 基础Url
-     * @param encrypt 是否需要加密
+     * @param baseUrl   基础Url
+     * @param needCache 是否需要缓存
+     * @param encrypt   是否需要加密
      * @return NetClient对象
      */
-    public static synchronized NetClient getInstance(String baseUrl, boolean encrypt) {
+    public static synchronized NetClient getInstance(String baseUrl, boolean needCache, boolean encrypt) {
         if (encrypt) {
             if (mEncryptNetClient == null || !defaultUrl.equals(baseUrl)) {
-                mEncryptNetClient = new NetClient(baseUrl, true);
+                mEncryptNetClient = new NetClient(baseUrl, needCache, true);
                 defaultUrl = baseUrl;
             }
             LogUtils.d(TAG, "请求接口：" + baseUrl);
             return mEncryptNetClient;
         } else {
             if (mNetClient == null || !defaultUrl.equals(baseUrl)) {
-                mNetClient = new NetClient(baseUrl, false);
+                mNetClient = new NetClient(baseUrl, needCache, false);
                 defaultUrl = baseUrl;
             }
             LogUtils.d(TAG, "请求接口：" + baseUrl);

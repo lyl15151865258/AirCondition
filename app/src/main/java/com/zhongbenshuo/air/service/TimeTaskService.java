@@ -74,12 +74,19 @@ public class TimeTaskService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        LogUtils.d(TAG, "TimeTaskService:onCreate");
         mContext = this;
         threadPool = Executors.newScheduledThreadPool(3);
         showNotification();
         executeShutDown();
         timeTaskServiceBinder = new TimeTaskServiceBinder();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        LogUtils.d(TAG, "TimeTaskService:onStartCommand");
         searchWeather();
+        return super.onStartCommand(intent, flags, startId);
     }
 
     /**
@@ -132,23 +139,24 @@ public class TimeTaskService extends Service {
      * 查询本地未同步服务端的人脸列表
      */
     public void searchWeather() {
-        Observable<Weather> resultObservable = NetClient.getInstance(NetClient.BASE_URL_WEATHER, false).getZbsApi().searchWeather(NetWork.GAODE_WEB, "320505", "base", "JSON");
+        LogUtils.d(TAG, "查询天气");
+        Observable<Weather> resultObservable = NetClient.getInstance(NetClient.BASE_URL_WEATHER, false, false).getZbsApi().searchWeather(NetWork.GAODE_WEB, "320505", "base", "JSON");
         resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Weather>(mContext) {
             @Override
             public void onSubscribe(Disposable d) {
-
+                LogUtils.d(TAG, "定时任务，开始查询实时天气");
             }
 
             @Override
             public void onError(ExceptionHandle.ResponseThrowable responseThrowable) {
-
+                LogUtils.d(TAG, "定时任务，实时天气查询失败");
             }
 
             @Override
             public void onNext(Weather weather) {
                 super.onNext(weather);
                 if (weather.getStatus().equals("1")) {
-                    LogUtils.d("定时任务，实时天气获取成功");
+                    LogUtils.d(TAG, "定时任务，实时天气获取成功");
                     EventMsg msg = new EventMsg();
                     msg.setTag(Constants.SHOW_WEATHER);
                     msg.setMsg(GsonUtils.convertJSON(weather));

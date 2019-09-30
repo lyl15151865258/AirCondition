@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">中本硕环境监测</string>
+    <string name="app_name">环境监测系统</string>
 
     <string name="RealTimeSyncService">环境监测同步服务正在运行</string>
     <string name="RealTimeSyncServiceRunning">环境监测同步服务正在运行</string>

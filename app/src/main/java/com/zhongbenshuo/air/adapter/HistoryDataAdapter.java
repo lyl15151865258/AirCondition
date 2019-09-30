@@ -51,9 +51,9 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
         holder.tvTime.setText(TimeUtils.normalFormat(environment.getCreateTime(), "yyyy-MM-dd HH:mm:ss", "HH:mm:ss"));
         // 温度
         holder.tvTemperature.setText(environment.getTemperature() + "℃");
-        if (environment.getTemperature() >= 15 && environment.getTemperature() <= 28) {
+        if (environment.getTemperature() >= 5 && environment.getTemperature() <= 30) {
             holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_normal));
-        } else if (environment.getTemperature() < 15) {
+        } else if (environment.getTemperature() < 5) {
             holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_low));
         } else {
             holder.tvTemperature.setTextColor(mContext.getResources().getColor(R.color.value_high));

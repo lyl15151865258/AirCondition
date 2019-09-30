@@ -654,9 +654,7 @@ public class MainActivity extends BaseActivity {
             default:
                 break;
         }
-
         return super.onKeyDown(keyCode, event);
-
     }
 
     @Override

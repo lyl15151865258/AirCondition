@@ -221,7 +221,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             return Environment.getExternalStorageDirectory().getAbsolutePath() + "/CrashInfo/AirCondition";
         } else {
-            return "/CrashInfo/ZBSAttendance";
+            return "/CrashInfo/AirCondition";
         }
     }
 

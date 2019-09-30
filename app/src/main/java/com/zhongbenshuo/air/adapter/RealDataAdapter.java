@@ -47,11 +47,11 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_TEMP:
                 // 温度
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(-10, 40, 15, 28);
-                if (realData.getValue() >= 15 && realData.getValue() <= 28) {
+                holder.cvRealData.setValue(-10, 40, 5, 30);
+                if (realData.getValue() >= 5 && realData.getValue() <= 30) {
                     holder.tvStatus.setText("舒适");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
-                } else if (realData.getValue() < 15) {
+                } else if (realData.getValue() < 5) {
                     holder.tvStatus.setText("寒冷");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_temperature_low);
                 } else {

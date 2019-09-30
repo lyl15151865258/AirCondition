@@ -31,6 +31,7 @@ public class NetworkUtil {
         } else {
             ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (conMan != null) {
+                // 判断WIFI
                 NetworkInfo infoWifi = conMan.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 if (infoWifi != null) {
                     NetworkInfo.State wifi = infoWifi.getState();
@@ -39,10 +40,19 @@ public class NetworkUtil {
                     }
                 }
 
+                // 判断移动数据
                 NetworkInfo infoMobile = conMan.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
                 if (infoMobile != null) {
                     NetworkInfo.State mobile = infoMobile.getState();
-                    return mobile == NetworkInfo.State.CONNECTED;
+                    if (mobile == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+                }
+
+                // 判断以太网
+                NetworkInfo mInternetNetWorkInfo = conMan.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+                if (mInternetNetWorkInfo != null) {
+                    return mInternetNetWorkInfo.isConnected() && mInternetNetWorkInfo.isAvailable();
                 }
                 return false;
             } else {

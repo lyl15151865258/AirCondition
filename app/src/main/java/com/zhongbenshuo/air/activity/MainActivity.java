@@ -16,10 +16,23 @@ import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.ywl5320.wlmedia.WlMedia;
+import com.ywl5320.wlmedia.enums.WlCodecType;
+import com.ywl5320.wlmedia.enums.WlMute;
+import com.ywl5320.wlmedia.enums.WlPlayModel;
+import com.ywl5320.wlmedia.enums.WlSampleRate;
+import com.ywl5320.wlmedia.enums.WlScaleType;
+import com.ywl5320.wlmedia.listener.WlOnCompleteListener;
+import com.ywl5320.wlmedia.listener.WlOnErrorListener;
+import com.ywl5320.wlmedia.listener.WlOnPauseListener;
+import com.ywl5320.wlmedia.listener.WlOnPcmDataListener;
+import com.ywl5320.wlmedia.listener.WlOnVideoViewListener;
+import com.ywl5320.wlmedia.widget.WlSurfaceView;
 import com.zhongbenshuo.air.R;
 import com.zhongbenshuo.air.adapter.HistoryDataAdapter;
 import com.zhongbenshuo.air.adapter.RealDataAdapter;
@@ -93,12 +106,23 @@ public class MainActivity extends BaseActivity {
 
     // 每个监测点停留时间
     private static final int WAIT_TIME_SECONDS = 10;
+    // 门铃和照片显示时间
+    private static final int PHOTO_SHOW_TIME_SECONDS = 8;
+    // 视频显示时间
+    private static final int VIDEO_SHOW_TIME_SECONDS = 16;
 
     // 定时任务执行时间
     private static volatile long seconds = 0;
     private static volatile int photoShowTime = 0;
+    private static volatile int videoShowTime = 0;
+
+    // 标记当前是否有人按门铃
+    private boolean doorBellPressed = false;
 
     private MediaPlayer mediaPlayer;
+    private WlMedia wlMedia;
+    private WlSurfaceView wlSurfaceView;
+    private LinearLayout llRealData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +136,7 @@ public class MainActivity extends BaseActivity {
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvPosition.setLayoutManager(linearLayoutManager);
         stationList = new ArrayList<>();
+        stationList.add(new Station(10000, "门厅监控", true, Station.TYPE_CAMERA));
         stationAdapter = new StationAdapter(this, stationList, selectedStation);
         stationAdapter.setOnItemClickListener(onItemClickListener);
         rvPosition.setAdapter(stationAdapter);
@@ -164,6 +189,106 @@ public class MainActivity extends BaseActivity {
 
         syncTimeTask = new SyncTimeTask(this);
         syncTimeTask.execute();
+
+        llRealData = findViewById(R.id.llRealData);
+        wlSurfaceView = findViewById(R.id.wlsurfaceview);
+        wlSurfaceView.setVisibility(View.VISIBLE);
+        wlMedia = new WlMedia();
+        wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO);//声音视频都播放
+        wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC);//优先使用硬解码
+        wlMedia.setMute(WlMute.MUTE_CENTER);//立体声
+        wlMedia.setVolume(80);//80%音量
+        wlMedia.setPlayPitch(1.0f);//正常速度
+        wlMedia.setPlaySpeed(1.0f);//正常音调
+        wlMedia.setRtspTimeOut(30);//网络流超时时间
+//        wlMedia.setShowPcmData(true);//回调返回音频pcm数据
+        wlMedia.setSampleRate(WlSampleRate.RATE_44100);//设置音频采样率为指定值（返回的PCM就是这个采样率）
+        wlSurfaceView.setWlMedia(wlMedia);//给视频surface设置播放器
+
+        wlMedia.setOnPreparedListener(() -> {
+            wlMedia.setVideoScale(WlScaleType.SCALE_16_9);
+            wlMedia.start();
+        });
+
+        wlMedia.setOnLoadListener(load -> {
+            if (load) {
+                LogUtils.d(TAG, "加载中");
+            } else {
+                LogUtils.d(TAG, "播放中");
+            }
+        });
+
+        wlMedia.setOnErrorListener(new WlOnErrorListener() {
+            @Override
+            public void onError(int code, String msg) {
+                LogUtils.d(TAG, "code is :" + code + ", msg is :" + msg);
+            }
+        });
+
+        wlMedia.setOnCompleteListener(new WlOnCompleteListener() {
+            @Override
+            public void onComplete() {
+                LogUtils.d(TAG, "播放完成");
+            }
+        });
+
+        wlMedia.setOnPauseListener(new WlOnPauseListener() {
+            @Override
+            public void onPause(boolean pause) {
+                if (pause) {
+                    LogUtils.d(TAG, "暂停中");
+                } else {
+                    LogUtils.d(TAG, "继续播放");
+                }
+            }
+        });
+
+        wlMedia.setOnPcmDataListener(new WlOnPcmDataListener() {
+            @Override
+            public void onPcmInfo(int bit, int channel, int samplerate) {
+                LogUtils.d(TAG, "pcm info samplerate :" + samplerate);
+            }
+
+            @Override
+            public void onPcmData(int size, byte[] data) {
+                LogUtils.d(TAG, "pcm data size :" + size);
+            }
+        });
+
+        wlSurfaceView.setOnVideoViewListener(new WlOnVideoViewListener() {
+            @Override
+            public void initSuccess() {
+                wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+                wlMedia.prepared();
+            }
+
+            @Override
+            public void moveSlide(double value) {
+
+            }
+
+            @Override
+            public void movdFinish(double value) {
+                wlMedia.seek((int) value);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (wlMedia != null) {
+            wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+            wlMedia.prepared();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (wlMedia != null) {
+            wlMedia.pause();
+        }
     }
 
     private StationAdapter.OnItemClickListener onItemClickListener = position -> {
@@ -215,7 +340,7 @@ public class MainActivity extends BaseActivity {
                     environmentListMap.get(environment.getStation()).remove(environmentListMap.get(environment.getStation()).size() - 1);
                 }
                 // 刷新页面
-                refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState()));
+                refreshPage(new Station(environment.getStation(), environment.getStation_name(), environment.isState(), Station.TYPE_AIR));
             }
         }
         if (msg.getTag().equals(Constants.SHOW_USER_PHOTO)) {
@@ -223,6 +348,7 @@ public class MainActivity extends BaseActivity {
             String url = msg.getMsg();
             if (!TextUtils.isEmpty(url)) {
                 ivUser.setVisibility(View.VISIBLE);
+                refreshPage(null);
                 LogUtils.d(TAG, "展示照片：" + "http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/"));
                 RoundedCornersTransformation roundedCornersTransformation = new RoundedCornersTransformation(10, 0, CORNER_ALL, CENTER_CROP);
                 RequestOptions options = new RequestOptions().dontAnimate().transform(roundedCornersTransformation);
@@ -233,6 +359,8 @@ public class MainActivity extends BaseActivity {
             mediaPlayer.setLooping(true);
             mediaPlayer.start();
             photoShowTime = 0;
+            videoShowTime = 0;
+            doorBellPressed = true;
         }
         if (msg.getTag().equals(Constants.SHOW_WEATHER)) {
             //接收到实时天气信息
@@ -338,27 +466,40 @@ public class MainActivity extends BaseActivity {
         Collections.sort(stationList);
         stationAdapter.notifyDataSetChanged();
 
-        // 刷新历史数据列表
-        environmentList.clear();
-        environmentList.addAll(environmentListMap.get(stationList.get(selectedStation).getStationId()));
-        historyDataAdapter.notifyDataSetChanged();
+        if (stationList.get(selectedStation).getStationId() == 10000 || doorBellPressed) {
+            // 如果当前选中的是视频监控页面有人按门铃
+            llRealData.setVisibility(View.INVISIBLE);
+            wlSurfaceView.setVisibility(View.VISIBLE);
+        } else {
+            // 隐藏视频监控页面
+            llRealData.setVisibility(View.VISIBLE);
+            wlSurfaceView.setVisibility(View.INVISIBLE);
+        }
 
-        // 刷新实时数据页面
-        if (environmentListMap.get(stationList.get(selectedStation).getStationId()).size() > 0) {
-            realDataList.clear();
-            Environment environment = environmentListMap.get(stationList.get(selectedStation).getStationId()).get(0);
-            realDataList.add(new RealData("温度", RealData.DATA_TYPE.TYPE_TEMP, environment.getTemperature(), "℃"));
-            realDataList.add(new RealData("湿度", RealData.DATA_TYPE.TYPE_HUMIDITY, environment.getHumidity(), "%"));
-            realDataList.add(new RealData("PM2.5", RealData.DATA_TYPE.TYPE_PM25, environment.getPm25(), "μg/m³"));
-            realDataList.add(new RealData("PM10", RealData.DATA_TYPE.TYPE_PM10, environment.getPm10(), "μg/m³"));
-            realDataList.add(new RealData("甲醛", RealData.DATA_TYPE.TYPE_HCHO, environment.getFormaldehyde(), "mg/m³"));
-            realDataList.add(new RealData("二氧化碳", RealData.DATA_TYPE.TYPE_CO2, environment.getCarbonDioxide(), "ppm"));
-            realDataAdapter.notifyDataSetChanged();
-            cvIlluminance.setTitle("光照度");
-            cvIlluminance.setCompleteDegree(environment.getIlluminance(), "lux");
-            cvIlluminance.setColor(mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low));
-            cvIlluminance.setValue(0, 2000, 0, 0);
-            cvIlluminance.setVisibility(View.VISIBLE);
+        // 如果当前选中的不是监控页面
+        if (stationList.get(selectedStation).getStationId() != 10000) {
+            // 刷新历史数据列表
+            environmentList.clear();
+            environmentList.addAll(environmentListMap.get(stationList.get(selectedStation).getStationId()));
+            historyDataAdapter.notifyDataSetChanged();
+
+            // 刷新实时数据页面
+            if (environmentListMap.get(stationList.get(selectedStation).getStationId()).size() > 0) {
+                realDataList.clear();
+                Environment environment = environmentListMap.get(stationList.get(selectedStation).getStationId()).get(0);
+                realDataList.add(new RealData("温度", RealData.DATA_TYPE.TYPE_TEMP, environment.getTemperature(), "℃"));
+                realDataList.add(new RealData("湿度", RealData.DATA_TYPE.TYPE_HUMIDITY, environment.getHumidity(), "%"));
+                realDataList.add(new RealData("PM2.5", RealData.DATA_TYPE.TYPE_PM25, environment.getPm25(), "μg/m³"));
+                realDataList.add(new RealData("PM10", RealData.DATA_TYPE.TYPE_PM10, environment.getPm10(), "μg/m³"));
+                realDataList.add(new RealData("甲醛", RealData.DATA_TYPE.TYPE_HCHO, environment.getFormaldehyde(), "mg/m³"));
+                realDataList.add(new RealData("二氧化碳", RealData.DATA_TYPE.TYPE_CO2, environment.getCarbonDioxide(), "ppm"));
+                realDataAdapter.notifyDataSetChanged();
+                cvIlluminance.setTitle("光照度");
+                cvIlluminance.setCompleteDegree(environment.getIlluminance(), "lux");
+                cvIlluminance.setColor(mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low), mContext.getResources().getColor(R.color.value_low));
+                cvIlluminance.setValue(0, 2000, 0, 0);
+                cvIlluminance.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -414,6 +555,7 @@ public class MainActivity extends BaseActivity {
                 }
                 seconds++;
                 photoShowTime++;
+                videoShowTime++;
             }
             return null;
         }
@@ -426,31 +568,55 @@ public class MainActivity extends BaseActivity {
             }
             MainActivity mainActivity = mainActivityWeakReference.get();
             LogUtils.d(mainActivity.TAG, "当前seconds为：" + seconds);
-            if (mainActivity.stationList.size() != 0 && seconds % WAIT_TIME_SECONDS == 0) {
-                LogUtils.d(mainActivity.TAG, "跳转到下一个");
-                // 跳转到下一个监测点，如果是最后一个，则跳转到第一个
-                if (mainActivity.selectedStation == mainActivity.stationList.size() - 1) {
-                    // 表示当前选中的是最后一个监测点
-                    LogUtils.d(mainActivity.TAG, "当前在最后一个，跳转到第一个");
-                    mainActivity.selectedStation = 0;
-                } else if (mainActivity.selectedStation < mainActivity.stationList.size() - 1) {
-                    // 表示当前选中的不是最后一个
-                    LogUtils.d(mainActivity.TAG, "当前不在最后一个，跳转到下一个");
-                    mainActivity.selectedStation++;
+            LogUtils.d(mainActivity.TAG, "当前photoShowTime为：" + photoShowTime);
+            LogUtils.d(mainActivity.TAG, "当前videpShowTime为：" + videoShowTime);
+            // 如果当前选中的不是监控
+            if (mainActivity.stationList.get(mainActivity.selectedStation).getStationId() != 10000) {
+                if (mainActivity.stationList.size() != 0 && seconds % WAIT_TIME_SECONDS == 0) {
+                    LogUtils.d(mainActivity.TAG, "跳转到下一个");
+                    // 跳转到下一个监测点，如果是监测点的最后一个，则跳转到监测点的第一个
+                    if (mainActivity.selectedStation == mainActivity.stationList.size() - 2) {
+                        // 表示当前选中的是最后一个监测点
+                        LogUtils.d(mainActivity.TAG, "当前在最后一个，跳转到第一个");
+                        mainActivity.selectedStation = 0;
+                    } else if (mainActivity.selectedStation < mainActivity.stationList.size() - 2) {
+                        // 表示当前选中的不是最后一个
+                        LogUtils.d(mainActivity.TAG, "当前不在最后一个，跳转到下一个");
+                        mainActivity.selectedStation++;
+                    }
+                    // 平滑地将这个的item滚动到中间
+                    mainActivity.rvPosition.smoothScrollToPosition(mainActivity.selectedStation);
+                    mainActivity.stationAdapter.setSelectedPosition(mainActivity.selectedStation);
+                    mainActivity.refreshPage(null);
                 }
-                // 平滑地将这个的item滚动到中间
-                mainActivity.rvPosition.smoothScrollToPosition(mainActivity.selectedStation);
-                mainActivity.stationAdapter.setSelectedPosition(mainActivity.selectedStation);
-                mainActivity.refreshPage(null);
             }
-            if (photoShowTime == 5) {
+            // 控制视频监控和实时数据显示的切换
+            if (mainActivity.stationList.get(mainActivity.selectedStation).getStationId() == 10000 || mainActivity.doorBellPressed) {
+                // 如果当前选中的是视频监控页面有人按门铃
+                mainActivity.llRealData.setVisibility(View.INVISIBLE);
+                mainActivity.wlSurfaceView.setVisibility(View.VISIBLE);
+            } else {
+                // 隐藏视频监控页面
+                mainActivity.llRealData.setVisibility(View.VISIBLE);
+                mainActivity.wlSurfaceView.setVisibility(View.INVISIBLE);
+            }
+            // 照片和铃声
+            if (photoShowTime == PHOTO_SHOW_TIME_SECONDS) {
                 mainActivity.ivUser.setVisibility(View.GONE);
                 if (mainActivity.mediaPlayer != null) {
                     mainActivity.mediaPlayer.stop();
                     mainActivity.mediaPlayer.release();
                     mainActivity.mediaPlayer = null;
                 }
-                photoShowTime = 0;
+                mainActivity.doorBellPressed = false;
+            }
+            // 视频显示
+            if (videoShowTime == VIDEO_SHOW_TIME_SECONDS) {
+                // 隐藏视频监控页面
+                if (mainActivity.stationList.get(mainActivity.selectedStation).getStationId() != 10000) {
+                    mainActivity.llRealData.setVisibility(View.VISIBLE);
+                    mainActivity.wlSurfaceView.setVisibility(View.INVISIBLE);
+                }
             }
         }
 
@@ -511,7 +677,7 @@ public class MainActivity extends BaseActivity {
         openAndCloseDoorRecord.setCreateTime(TimeUtils.getCurrentDateTime());
         openAndCloseDoorRecord.setStatus(status);
 
-        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, true,true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
+        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, false, true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
         resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Result>(this) {
 
             @Override
@@ -671,6 +837,9 @@ public class MainActivity extends BaseActivity {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
+        }
+        if (wlMedia != null) {
+            wlMedia.onDestroy();
         }
         super.onDestroy();
     }

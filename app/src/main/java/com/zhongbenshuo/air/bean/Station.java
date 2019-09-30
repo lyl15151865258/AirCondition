@@ -8,10 +8,16 @@ public class Station implements Comparable<Station> {
 
     private boolean online;
 
-    public Station(int stationId, String stationName, boolean online) {
+    private int type;
+
+    public static final int TYPE_AIR = 1;
+    public static final int TYPE_CAMERA = 2;
+
+    public Station(int stationId, String stationName, boolean online, int type) {
         this.stationId = stationId;
         this.stationName = stationName;
         this.online = online;
+        this.type = type;
     }
 
     public int getStationId() {
@@ -36,6 +42,14 @@ public class Station implements Comparable<Station> {
 
     public void setOnline(boolean online) {
         this.online = online;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     @Override

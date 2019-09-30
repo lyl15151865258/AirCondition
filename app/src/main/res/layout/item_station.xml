@@ -11,10 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:paddingTop="@dimen/dp_18"
-        android:paddingBottom="@dimen/dp_17"
+        android:paddingTop="@dimen/dp_14"
+        android:paddingBottom="@dimen/dp_14"
         android:textColor="@color/gray_5"
-        android:textSize="@dimen/sp_14"
+        android:textSize="@dimen/sp_13"
         android:textStyle="bold" />
 
     <View

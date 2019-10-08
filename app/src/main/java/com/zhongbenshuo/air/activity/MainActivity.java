@@ -1,10 +1,13 @@
 package com.zhongbenshuo.air.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -123,6 +126,9 @@ public class MainActivity extends BaseActivity {
     private WlMedia wlMedia;
     private WlSurfaceView wlSurfaceView;
     private LinearLayout llRealData;
+    private ImageView ivNetWork;
+
+    private NetBroadcastReceiver netBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -274,6 +280,12 @@ public class MainActivity extends BaseActivity {
                 wlMedia.seek((int) value);
             }
         });
+
+        ivNetWork = findViewById(R.id.ivNetWork);
+
+        netBroadcastReceiver = new NetBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(netBroadcastReceiver, intentFilter);
     }
 
     /**
@@ -730,6 +742,24 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+
+    /**
+     * 网络监测
+     */
+    private class NetBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (NetworkUtil.isNetworkAvailable(context)) {
+                // 网络连接成功
+                ivNetWork.setVisibility(View.VISIBLE);
+            } else {
+                // 网络断开
+                ivNetWork.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -857,6 +887,9 @@ public class MainActivity extends BaseActivity {
         }
         if (wlMedia != null) {
             wlMedia.onDestroy();
+        }
+        if (netBroadcastReceiver != null) {
+            unregisterReceiver(netBroadcastReceiver);
         }
         super.onDestroy();
     }

@@ -324,6 +324,23 @@
             android:gravity="end|center_vertical"
             android:padding="@dimen/dp_5">
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/ivNetWork"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_15"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/network"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/dp_13"

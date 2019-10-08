@@ -54,7 +54,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected int mDensityDpi;
     protected int mAvatarSize;
     protected float mRatio;
-    private long exitTime = 0;
     protected Vibrator vibrator;
 
     @SuppressLint("WrongConstant")

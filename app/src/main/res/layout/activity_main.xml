@@ -336,6 +336,7 @@
                 android:id="@+id/tvTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_3"
                 android:text="中本硕机电"
                 android:textColor="@color/gray_5"
                 android:textSize="@dimen/sp_13"

@@ -193,42 +193,45 @@ public class MainActivity extends BaseActivity {
         llRealData = findViewById(R.id.llRealData);
         wlSurfaceView = findViewById(R.id.wlsurfaceview);
         wlSurfaceView.setVisibility(View.VISIBLE);
+
         wlMedia = new WlMedia();
-        wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO);//声音视频都播放
-        wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC);//优先使用硬解码
-        wlMedia.setMute(WlMute.MUTE_CENTER);//立体声
-        wlMedia.setVolume(80);//80%音量
-        wlMedia.setPlayPitch(1.0f);//正常速度
-        wlMedia.setPlaySpeed(1.0f);//正常音调
-        wlMedia.setRtspTimeOut(30);//网络流超时时间
-//        wlMedia.setShowPcmData(true);//回调返回音频pcm数据
-        wlMedia.setSampleRate(WlSampleRate.RATE_44100);//设置音频采样率为指定值（返回的PCM就是这个采样率）
-        wlSurfaceView.setWlMedia(wlMedia);//给视频surface设置播放器
+        wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO);        //声音视频都播放
+        wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC);             //优先使用硬解码
+        wlMedia.setMute(WlMute.MUTE_CENTER);                            //立体声
+        wlMedia.setVolume(80);                                          //80%音量
+        wlMedia.setPlayPitch(1.0f);                                     //正常速度
+        wlMedia.setPlaySpeed(1.0f);                                     //正常音调
+        wlMedia.setRtspTimeOut(30);                                     //网络流超时时间
+        wlMedia.setShowPcmData(true);                                   //回调返回音频pcm数据
+        wlMedia.setSampleRate(WlSampleRate.RATE_44100);                 //设置音频采样率为指定值（返回的PCM就是这个采样率）
+        wlSurfaceView.setWlMedia(wlMedia);                              //给视频surface设置播放器
 
         wlMedia.setOnPreparedListener(() -> {
-            wlMedia.setVideoScale(WlScaleType.SCALE_16_9);
+            wlMedia.setVideoScale(WlScaleType.SCALE_FULL_SURFACE);
             wlMedia.start();
         });
 
         wlMedia.setOnLoadListener(load -> {
             if (load) {
-                LogUtils.d(TAG, "加载中");
+                LogUtils.d(TAG, "WlMedia：加载中");
             } else {
-                LogUtils.d(TAG, "播放中");
+                LogUtils.d(TAG, "WlMedia：播放中");
             }
         });
 
         wlMedia.setOnErrorListener(new WlOnErrorListener() {
             @Override
             public void onError(int code, String msg) {
-                LogUtils.d(TAG, "code is :" + code + ", msg is :" + msg);
+                LogUtils.d(TAG, "WlMedia：出错，code is :" + code + ", msg is :" + msg);
+                change();
             }
         });
 
         wlMedia.setOnCompleteListener(new WlOnCompleteListener() {
             @Override
             public void onComplete() {
-                LogUtils.d(TAG, "播放完成");
+                LogUtils.d(TAG, "WlMedia：播放完成");
+                change();
             }
         });
 
@@ -236,9 +239,9 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPause(boolean pause) {
                 if (pause) {
-                    LogUtils.d(TAG, "暂停中");
+                    LogUtils.d(TAG, "WlMedia：暂停中");
                 } else {
-                    LogUtils.d(TAG, "继续播放");
+                    LogUtils.d(TAG, "WlMedia：继续播放");
                 }
             }
         });
@@ -246,20 +249,19 @@ public class MainActivity extends BaseActivity {
         wlMedia.setOnPcmDataListener(new WlOnPcmDataListener() {
             @Override
             public void onPcmInfo(int bit, int channel, int samplerate) {
-                LogUtils.d(TAG, "pcm info samplerate :" + samplerate);
+                LogUtils.d(TAG, "WlMedia：pcm info samplerate :" + samplerate);
             }
 
             @Override
             public void onPcmData(int size, byte[] data) {
-                LogUtils.d(TAG, "pcm data size :" + size);
+                LogUtils.d(TAG, "WlMedia：pcm data size :" + size);
             }
         });
 
         wlSurfaceView.setOnVideoViewListener(new WlOnVideoViewListener() {
             @Override
             public void initSuccess() {
-                wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
-                wlMedia.prepared();
+                play();
             }
 
             @Override
@@ -274,12 +276,27 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 播放视频流
+     */
+    public void play() {
+        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+        wlMedia.prepared();
+    }
+
+    /**
+     * 切换视频流
+     */
+    public void change() {
+        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+        wlMedia.next();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         if (wlMedia != null) {
-            wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
-            wlMedia.prepared();
+            wlMedia.resume();
         }
     }
 

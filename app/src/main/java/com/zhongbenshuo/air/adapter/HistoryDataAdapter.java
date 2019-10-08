@@ -60,9 +60,9 @@ public class HistoryDataAdapter extends RecyclerView.Adapter<HistoryDataAdapter.
         }
         // 湿度
         holder.tvHumidity.setText(environment.getHumidity() + "%");
-        if (environment.getHumidity() >= 40 && environment.getHumidity() <= 70) {
+        if (environment.getHumidity() >= 30 && environment.getHumidity() <= 70) {
             holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_normal));
-        } else if (environment.getHumidity() < 40) {
+        } else if (environment.getHumidity() < 30) {
             holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_dry));
         } else {
             holder.tvHumidity.setTextColor(mContext.getResources().getColor(R.color.value_high));

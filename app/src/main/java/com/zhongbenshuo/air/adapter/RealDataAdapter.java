@@ -62,11 +62,11 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_HUMIDITY:
                 // 湿度
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_dry), mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 100, 40, 70);
-                if (realData.getValue() >= 40 && realData.getValue() <= 70) {
+                holder.cvRealData.setValue(0, 100, 30, 70);
+                if (realData.getValue() >= 30 && realData.getValue() <= 70) {
                     holder.tvStatus.setText("舒适");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
-                } else if (realData.getValue() < 40) {
+                } else if (realData.getValue() < 30) {
                     holder.tvStatus.setText("干燥");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_dry);
                 } else {
@@ -77,7 +77,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_PM25:
                 // PM2.5
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.orange_600), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 350, 75, 150);
+                holder.cvRealData.setValue(0, 300, 75, 150);
                 if (realData.getValue() <= 35) {
                     holder.tvStatus.setText("低");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
@@ -101,7 +101,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_PM10:
                 // PM10
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 350, 50, 150);
+                holder.cvRealData.setValue(0, 300, 50, 150);
                 if (realData.getValue() <= 50) {
                     holder.tvStatus.setText("低");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);
@@ -116,7 +116,7 @@ public class RealDataAdapter extends RecyclerView.Adapter<RealDataAdapter.ListVi
             case TYPE_HCHO:
                 // HCHO
                 holder.cvRealData.setColor(mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_normal), mContext.getResources().getColor(R.color.value_high));
-                holder.cvRealData.setValue(0, 0.15f, 0.08f, 0.08f);
+                holder.cvRealData.setValue(0, 0.2f, 0.08f, 0.08f);
                 if (realData.getValue() <= 0.08) {
                     holder.tvStatus.setText("正常");
                     holder.tvStatus.setBackgroundResource(R.drawable.background_normal);

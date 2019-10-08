@@ -249,9 +249,15 @@ public class ClockView extends View {
      * @param canvas
      */
     private void drawPointer(Canvas canvas) {
-        float degree = 270f / (default_value_max - default_value_min);
-        int currentDegree = (int) ((currentValue - default_value_min) * degree + 135);
-        canvas.rotate(currentDegree);
+        if (currentValue <= default_value_max) {
+            // 如果实际值不大于量程的最大值，按照实际值计算角度
+            float degree = 270f / (default_value_max - default_value_min);
+            int currentDegree = (int) ((currentValue - default_value_min) * degree + 135);
+            canvas.rotate(currentDegree);
+        } else {
+            // 如果实际值大于量程的最大值，直接按照最大值的角度绘制指针
+            canvas.rotate(45);
+        }
 
         pointerPath.moveTo(radiusDial - strokeWidthDial - dp2px(12), 0);
         pointerPath.lineTo(0, -dp2px(3));

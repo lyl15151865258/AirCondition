@@ -38,6 +38,7 @@ public class SelectDialog extends Dialog {
         initWindow();
         okBtn = findViewById(R.id.btn_ok);
         cancelBtn = findViewById(R.id.btn_cancel);
+        cancelBtn.requestFocus();
         TextView tvWarning = findViewById(R.id.tv_warning);
         tvWarning.setText(text);
         okBtn.setOnClickListener((v) -> {
@@ -94,4 +95,3 @@ public class SelectDialog extends Dialog {
         void onCancelClick();
     }
 }
-

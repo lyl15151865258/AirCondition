@@ -56,11 +56,13 @@ import com.zhongbenshuo.air.network.NetClient;
 import com.zhongbenshuo.air.network.NetworkObserver;
 import com.zhongbenshuo.air.service.TimeTaskService;
 import com.zhongbenshuo.air.service.WebSocketService;
+import com.zhongbenshuo.air.utils.ActivityController;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
 import com.zhongbenshuo.air.utils.NetworkUtil;
 import com.zhongbenshuo.air.utils.TimeUtils;
 import com.zhongbenshuo.air.widget.ClockView;
+import com.zhongbenshuo.air.widget.SelectDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -225,30 +227,21 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        wlMedia.setOnErrorListener(new WlOnErrorListener() {
-            @Override
-            public void onError(int code, String msg) {
-                LogUtils.d(TAG, "WlMedia：出错，code is :" + code + ", msg is :" + msg);
-                change();
-            }
+        wlMedia.setOnErrorListener((code, msg) -> {
+            LogUtils.d(TAG, "WlMedia：出错，code is :" + code + ", msg is :" + msg);
+            change();
         });
 
-        wlMedia.setOnCompleteListener(new WlOnCompleteListener() {
-            @Override
-            public void onComplete() {
-                LogUtils.d(TAG, "WlMedia：播放完成");
-                change();
-            }
+        wlMedia.setOnCompleteListener(() -> {
+            LogUtils.d(TAG, "WlMedia：播放完成");
+            change();
         });
 
-        wlMedia.setOnPauseListener(new WlOnPauseListener() {
-            @Override
-            public void onPause(boolean pause) {
-                if (pause) {
-                    LogUtils.d(TAG, "WlMedia：暂停中");
-                } else {
-                    LogUtils.d(TAG, "WlMedia：继续播放");
-                }
+        wlMedia.setOnPauseListener(pause -> {
+            if (pause) {
+                LogUtils.d(TAG, "WlMedia：暂停中");
+            } else {
+                LogUtils.d(TAG, "WlMedia：继续播放");
             }
         });
 
@@ -742,7 +735,6 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-
     /**
      * 网络监测
      */
@@ -774,6 +766,7 @@ public class MainActivity extends BaseActivity {
                 //返回键
                 //这里由于break会退出，所以我们自己要处理掉 不返回上一层
                 LogUtils.d(TAG, "点击了返回键");
+                exitApp();
                 return true;
             case KeyEvent.KEYCODE_SETTINGS:
                 //设置键
@@ -892,6 +885,27 @@ public class MainActivity extends BaseActivity {
             unregisterReceiver(netBroadcastReceiver);
         }
         super.onDestroy();
+    }
+
+    /**
+     * 显示确认退出的弹窗
+     */
+    private void exitApp() {
+        SelectDialog selectDialog = new SelectDialog(mContext, getString(R.string.warning_to_exit));
+        selectDialog.setButtonText(getString(R.string.Cancel), getString(R.string.Continue));
+        selectDialog.setCancelable(false);
+        selectDialog.setOnDialogClickListener(new SelectDialog.OnDialogClickListener() {
+            @Override
+            public void onOKClick() {
+                ActivityController.finishActivity(MainActivity.this);
+            }
+
+            @Override
+            public void onCancelClick() {
+
+            }
+        });
+        selectDialog.show();
     }
 
 }

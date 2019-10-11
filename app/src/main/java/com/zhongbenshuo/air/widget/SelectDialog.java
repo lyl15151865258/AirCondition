@@ -2,9 +2,11 @@ package com.zhongbenshuo.air.widget;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -53,6 +55,16 @@ public class SelectDialog extends Dialog {
                 dialogClickListener.onCancelClick();
             }
         });
+
+        // 去掉Android4.4及以下版本出现的顶部横线
+        try {
+            int dividerID = context.getResources().getIdentifier("android:id/titleDivider", null, null);
+            View divider = findViewById(dividerID);
+            divider.setBackgroundColor(Color.TRANSPARENT);
+        } catch (Exception e) {
+            //上面的代码，是用来去除Holo主题的蓝色线条
+            e.printStackTrace();
+        }
     }
 
     /**

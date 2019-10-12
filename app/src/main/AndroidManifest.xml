@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- 开机自启 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 避免Android8.0安装APK时提示解析安装包错误 -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <application
         android:name=".AirApplication"
@@ -42,7 +44,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -84,6 +86,12 @@
         <!-- 定时任务服务 -->
         <service
             android:name=".service.TimeTaskService"
+            android:enabled="true"
+            android:persistent="true" />
+
+        <!-- 下载文件时在状态栏显示进度的服务 -->
+        <service
+            android:name=".service.DownloadService"
             android:enabled="true"
             android:persistent="true" />
 

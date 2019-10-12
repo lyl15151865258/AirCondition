@@ -10,8 +10,6 @@ import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.constant.ErrorCode;
 import com.zhongbenshuo.air.constant.NetWork;
 import com.zhongbenshuo.air.contentprovider.SPHelper;
-import com.zhongbenshuo.air.network.retrofit.ProgressListener;
-import com.zhongbenshuo.air.network.retrofit.ProgressResponseBody;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
 import com.zhongbenshuo.air.utils.NetworkUtil;
@@ -39,8 +37,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -435,56 +431,5 @@ public class NetClient {
     private static OkHttpClient okHttpClient = new OkHttpClient.Builder().connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.MILLISECONDS)
             .readTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.MILLISECONDS)
             .writeTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.MILLISECONDS).build();
-
-    /**
-     * Retrofit带进度的下载方法（下载最新正式版文件）
-     *
-     * @param listener 进度监听器
-     * @param callback 请求结果回调
-     */
-    public static void downloadFileProgress(ProgressListener listener, Callback<ResponseBody> callback) {
-        OkHttpClient client = okHttpClient.newBuilder().addNetworkInterceptor((chain) -> {
-            Response response = chain.proceed(chain.request());
-            return response.newBuilder().body(new ProgressResponseBody(response.body(), listener)).build();
-        }).build();
-        //设置Gson的非严格模式
-        Gson gson = new GsonBuilder().setLenient().create();
-        // 初始化Retrofit
-        Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(getBaseUrlProject())
-                .client(client)
-                .addConverterFactory(new StringConverterFactory())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-        Call<ResponseBody> downloadCall = mRetrofit.create(ZbsApi.class).downloadFile();
-        downloadCall.enqueue(callback);
-    }
-
-    /**
-     * Retrofit带进度的下载方法（下载指定文件）
-     *
-     * @param filePath 文件路径
-     * @param listener 进度监听器
-     * @param callback 请求结果回调
-     */
-    public static void downloadFileProgress(String filePath, ProgressListener listener, Callback<ResponseBody> callback) {
-        OkHttpClient client = okHttpClient.newBuilder().addNetworkInterceptor((chain) -> {
-            Response response = chain.proceed(chain.request());
-            return response.newBuilder().body(new ProgressResponseBody(response.body(), listener)).build();
-        }).build();
-        //设置Gson的非严格模式
-        Gson gson = new GsonBuilder().setLenient().create();
-        // 初始化Retrofit
-        Retrofit mRetrofit = new Retrofit.Builder()
-                .baseUrl(getBaseUrl())
-                .client(client)
-                .addConverterFactory(new StringConverterFactory())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build();
-        Call<ResponseBody> downloadCall = mRetrofit.create(ZbsApi.class).downloadFile(filePath);
-        downloadCall.enqueue(callback);
-    }
 
 }

@@ -14,46 +14,41 @@ import android.widget.TextView;
 import com.zhongbenshuo.air.R;
 
 /**
- * 选择Dialog
- * Created at 2018/11/28 13:55
+ * 版本升级的dialog
+ * Created at 2019/3/1 14:23
  *
- * @author LiYuliang
+ * @author Li Yuliang
  * @version 1.0
  */
 
-public class SelectDialog extends Dialog {
+public class UpgradeVersionDialog extends Dialog {
+
     private Context context;
-    private String text;
-    private TextView okBtn, cancelBtn;
     private OnDialogClickListener dialogClickListener;
 
-    public SelectDialog(Context context, String text) {
+    public UpgradeVersionDialog(Context context) {
         super(context);
         this.context = context;
-        this.text = text;
         initView();
     }
 
-    //初始化View
     private void initView() {
-        setContentView(R.layout.dialog_select);
+        setContentView(R.layout.dialog_upgrade);
         initWindow();
-        okBtn = findViewById(R.id.btn_ok);
-        cancelBtn = findViewById(R.id.btn_cancel);
+        TextView okBtn = findViewById(R.id.btn_ok);
+        TextView cancelBtn = findViewById(R.id.btn_cancel);
         okBtn.requestFocus();
-        TextView tvWarning = findViewById(R.id.tv_warning);
-        tvWarning.setText(text);
-        okBtn.setOnClickListener((v) -> {
-            dismiss();
+        okBtn.setOnClickListener(v -> {
             if (dialogClickListener != null) {
                 dialogClickListener.onOKClick();
             }
-        });
-        cancelBtn.setOnClickListener((v) -> {
             dismiss();
+        });
+        cancelBtn.setOnClickListener(v -> {
             if (dialogClickListener != null) {
                 dialogClickListener.onCancelClick();
             }
+            dismiss();
         });
 
         // 去掉Android4.4及以下版本出现的顶部横线
@@ -68,28 +63,17 @@ public class SelectDialog extends Dialog {
     }
 
     /**
-     * 设置按钮上的文字
-     *
-     * @param leftText  左边按钮文字
-     * @param rightText 右边按钮文字
-     */
-    public void setButtonText(String leftText, String rightText) {
-        cancelBtn.setText(leftText);
-        okBtn.setText(rightText);
-    }
-
-    /**
      * 添加黑色半透明背景
      */
     private void initWindow() {
         Window dialogWindow = getWindow();
         if (dialogWindow != null) {
-            dialogWindow.setBackgroundDrawable(new ColorDrawable(0));//设置window背景
-            dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);//设置输入法显示模式
+            dialogWindow.setBackgroundDrawable(new ColorDrawable(0));
+            dialogWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
             WindowManager.LayoutParams lp = dialogWindow.getAttributes();
-            DisplayMetrics d = context.getResources().getDisplayMetrics();//获取屏幕尺寸
-            lp.width = (int) (d.widthPixels * 0.9); //宽度为屏幕80%
-            lp.gravity = Gravity.CENTER;  //中央居中
+            DisplayMetrics d = context.getResources().getDisplayMetrics();
+            lp.width = (int) (d.widthPixels * 0.9);
+            lp.gravity = Gravity.CENTER;
             dialogWindow.setAttributes(lp);
         }
     }
@@ -102,8 +86,16 @@ public class SelectDialog extends Dialog {
      * 添加按钮点击事件
      */
     public interface OnDialogClickListener {
+
+        /**
+         * 更新按钮点击事件
+         */
         void onOKClick();
 
+        /**
+         * 下次再说按钮点击事件
+         */
         void onCancelClick();
     }
 }
+

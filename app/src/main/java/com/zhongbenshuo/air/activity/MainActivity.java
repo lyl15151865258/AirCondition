@@ -1,16 +1,24 @@
 package com.zhongbenshuo.air.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,18 +32,17 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.JsonObject;
 import com.ywl5320.wlmedia.WlMedia;
 import com.ywl5320.wlmedia.enums.WlCodecType;
 import com.ywl5320.wlmedia.enums.WlMute;
 import com.ywl5320.wlmedia.enums.WlPlayModel;
 import com.ywl5320.wlmedia.enums.WlSampleRate;
 import com.ywl5320.wlmedia.enums.WlScaleType;
-import com.ywl5320.wlmedia.listener.WlOnCompleteListener;
-import com.ywl5320.wlmedia.listener.WlOnErrorListener;
-import com.ywl5320.wlmedia.listener.WlOnPauseListener;
 import com.ywl5320.wlmedia.listener.WlOnPcmDataListener;
 import com.ywl5320.wlmedia.listener.WlOnVideoViewListener;
 import com.ywl5320.wlmedia.widget.WlSurfaceView;
+import com.zhongbenshuo.air.BuildConfig;
 import com.zhongbenshuo.air.R;
 import com.zhongbenshuo.air.adapter.HistoryDataAdapter;
 import com.zhongbenshuo.air.adapter.RealDataAdapter;
@@ -46,28 +53,37 @@ import com.zhongbenshuo.air.bean.OpenAndCloseDoorRecord;
 import com.zhongbenshuo.air.bean.RealData;
 import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.bean.Station;
+import com.zhongbenshuo.air.bean.VersionInfo;
+import com.zhongbenshuo.air.bean.VersionResult;
 import com.zhongbenshuo.air.bean.Weather;
+import com.zhongbenshuo.air.constant.ApkInfo;
 import com.zhongbenshuo.air.constant.Constants;
 import com.zhongbenshuo.air.constant.ErrorCode;
 import com.zhongbenshuo.air.constant.NetWork;
 import com.zhongbenshuo.air.glide.RoundedCornersTransformation;
+import com.zhongbenshuo.air.interfaces.DownloadProgress;
 import com.zhongbenshuo.air.network.ExceptionHandle;
 import com.zhongbenshuo.air.network.NetClient;
 import com.zhongbenshuo.air.network.NetworkObserver;
+import com.zhongbenshuo.air.service.DownloadService;
 import com.zhongbenshuo.air.service.TimeTaskService;
 import com.zhongbenshuo.air.service.WebSocketService;
 import com.zhongbenshuo.air.utils.ActivityController;
+import com.zhongbenshuo.air.utils.ApkUtils;
+import com.zhongbenshuo.air.utils.FileUtil;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
 import com.zhongbenshuo.air.utils.NetworkUtil;
 import com.zhongbenshuo.air.utils.TimeUtils;
 import com.zhongbenshuo.air.widget.ClockView;
 import com.zhongbenshuo.air.widget.SelectDialog;
+import com.zhongbenshuo.air.widget.UpgradeVersionDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,6 +147,15 @@ public class MainActivity extends BaseActivity {
     private ImageView ivNetWork;
 
     private NetBroadcastReceiver netBroadcastReceiver;
+
+    // 版本更新相关信息
+    private String latestVersionName, latestVersionMD5, latestVersionLog, apkDownloadPath, latestFileName;
+    private int myVersionCode, latestVersionCode;
+
+    private static final int GET_UNKNOWN_APP_SOURCES = 2;
+    protected static final int INSTALL_PACKAGES_REQUEST_CODE = 103;
+
+    public static DownloadProgress downloadProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,6 +304,22 @@ public class MainActivity extends BaseActivity {
         netBroadcastReceiver = new NetBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(netBroadcastReceiver, intentFilter);
+
+        // 当前版本
+        myVersionCode = ApkUtils.getVersionCode(mContext);
+
+        downloadProgress = new DownloadProgress() {
+            @Override
+            public void downloadStart() {
+                runOnUiThread(() -> showToast("正在后台下载"));
+            }
+
+            @Override
+            public void downloadFinish() {
+                runOnUiThread(() -> checkIsAndroidO());
+            }
+        };
+        searchNewVersion(false);
     }
 
     /**
@@ -826,10 +867,12 @@ public class MainActivity extends BaseActivity {
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 //向左键
                 LogUtils.d(TAG, "点击了左键");
+                searchNewVersion(true);
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 //向右键
                 LogUtils.d(TAG, "点击了右键");
+                searchNewVersion(true);
                 break;
             case KeyEvent.KEYCODE_INFO:
                 //info键
@@ -897,7 +940,7 @@ public class MainActivity extends BaseActivity {
         selectDialog.setOnDialogClickListener(new SelectDialog.OnDialogClickListener() {
             @Override
             public void onOKClick() {
-                ActivityController.finishActivity(MainActivity.this);
+                ActivityController.exit(mContext);
             }
 
             @Override
@@ -906,6 +949,210 @@ public class MainActivity extends BaseActivity {
             }
         });
         selectDialog.show();
+    }
+
+    /**
+     * 查询最新版本
+     */
+    public void searchNewVersion(boolean showToast) {
+        JsonObject params = new JsonObject();
+        params.addProperty("apkTypeId", ApkInfo.APK_TYPE_ID_AirCondition);
+
+        Observable<Result> resultObservable = NetClient.getInstance(NetClient.getBaseUrlProject(), false, true).getZbsApi().searchNewVersion(params);
+        resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Result>(this) {
+
+            @Override
+            public void onSubscribe(Disposable d) {
+                showLoadingDialog(mContext, "查询最新版本中", false);
+            }
+
+            @Override
+            public void onError(ExceptionHandle.ResponseThrowable responseThrowable) {
+                cancelDialog();
+            }
+
+            @Override
+            public void onNext(Result result) {
+                super.onNext(result);
+                cancelDialog();
+                VersionResult versionResult = GsonUtils.parseJSON(GsonUtils.convertJSON(result.getData()), VersionResult.class);
+                if (result.getCode() == ErrorCode.SUCCESS) {
+                    VersionInfo versionInfo = versionResult.getVersionInfo();
+                    latestVersionName = versionInfo.getVersionName();
+                    latestVersionMD5 = versionInfo.getMd5Value();
+                    latestVersionLog = versionInfo.getVersionLog();
+                    apkDownloadPath = versionInfo.getVersionUrl().replace("\\", "/");
+                    latestFileName = versionInfo.getVersionFileName();
+                    latestVersionCode = versionInfo.getVersionCode();
+                    if (myVersionCode < latestVersionCode) {
+                        showDialogUpdate();
+                    } else {
+                        if (showToast) {
+                            showToast("您当前使用的是最新版本");
+                        }
+                    }
+                } else if (result.getCode() == ErrorCode.FAIL) {
+                    if (showToast) {
+                        showToast("查询版本信息失败");
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 提示版本更新的对话框
+     */
+    private void showDialogUpdate() {
+        UpgradeVersionDialog upgradeVersionDialog = new UpgradeVersionDialog(mContext);
+        upgradeVersionDialog.setCancelable(false);
+        ((TextView) upgradeVersionDialog.findViewById(R.id.tv_versionLog)).setText(latestVersionLog);
+        ((TextView) upgradeVersionDialog.findViewById(R.id.tv_currentVersion)).setText(ApkUtils.getVersionName(mContext));
+        ((TextView) upgradeVersionDialog.findViewById(R.id.tv_latestVersion)).setText(latestVersionName);
+        upgradeVersionDialog.setOnDialogClickListener(new UpgradeVersionDialog.OnDialogClickListener() {
+            @Override
+            public void onOKClick() {
+                downloadApk(apkDownloadPath);
+            }
+
+            @Override
+            public void onCancelClick() {
+                upgradeVersionDialog.dismiss();
+            }
+        });
+        upgradeVersionDialog.show();
+    }
+
+    /**
+     * 下载新版本程序
+     */
+    public void downloadApk(String downloadUrl) {
+        final int DOWNLOAD_APK_ID = 10;
+        // 判断下载服务是不是已经在运行了
+        if (isServiceRunning(DownloadService.class.getName())) {
+            showToast("正在后台下载，请稍后");
+        } else {
+            Intent intent = new Intent(MainActivity.this, DownloadService.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("download_url", downloadUrl);
+            bundle.putInt("download_id", DOWNLOAD_APK_ID);
+            bundle.putString("download_file", latestFileName);
+            intent.putExtras(bundle);
+            startService(intent);
+            showToast("正在后台下载");
+        }
+    }
+
+    /**
+     * 用来判断服务是否运行.
+     *
+     * @param className 判断的服务名字
+     * @return true 在运行 false 不在运行
+     */
+    private boolean isServiceRunning(String className) {
+        boolean isRunning = false;
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> serviceList = activityManager.getRunningServices(Integer.MAX_VALUE);
+        if (!(serviceList.size() > 0)) {
+            return false;
+        }
+        for (int i = 0; i < serviceList.size(); i++) {
+            if (serviceList.get(i).service.getClassName().equals(className)) {
+                isRunning = true;
+                break;
+            }
+        }
+        return isRunning;
+    }
+
+    /**
+     * 安装apk
+     *
+     * @param file 需要安装的apk
+     */
+    private void installApk(File file) {
+        //先验证文件的正确性和完整性（通过MD5值）
+        LogUtils.d(TAG, "文件路径：" + file.getAbsolutePath());
+        if (file.isFile() && latestVersionMD5.equals(FileUtil.getFileMD5(file))) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Uri apkUri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".fileProvider", file);//在AndroidManifest中的android:authorities值
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);//添加这一句表示对目标应用临时授权该Uri所代表的文件
+                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            } else {
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+            }
+            startActivity(intent);
+        } else {
+            showToast("File error");
+        }
+    }
+
+    /**
+     * Android8.0需要处理未知应用来源权限问题,否则直接安装
+     */
+    private void checkIsAndroidO() {
+        LogUtils.d(TAG, "检查Android8.0安装软件的权限");
+        File file = new File(ApkInfo.APP_ROOT_PATH + ApkInfo.DOWNLOAD_DIR, latestFileName);
+        if (file.exists()) {
+            LogUtils.d(TAG, "文件存在，准备安装");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LogUtils.d(TAG, "Android版本大于等于Android8.0，需要检查安装软件的权限");
+                boolean b = mContext.getPackageManager().canRequestPackageInstalls();
+                if (b) {
+                    LogUtils.d(TAG, "有安装未知应用来源的权限，开始安装");
+                    installApk(file);
+                } else {
+                    //请求安装未知应用来源的权限
+                    LogUtils.d(TAG, "没有安装未知应用来源的权限，开始申请");
+                    requestPermissions(new String[]{Manifest.permission.REQUEST_INSTALL_PACKAGES}, INSTALL_PACKAGES_REQUEST_CODE);
+                }
+            } else {
+                LogUtils.d(TAG, "Android版本小于Android8.0，直接安装");
+                installApk(file);
+            }
+        } else {
+            LogUtils.d(TAG, "文件不存在，安装失败");
+            showToast("文件不存在");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case INSTALL_PACKAGES_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    checkIsAndroidO();
+                } else {
+                    //  Android8.0以上引导用户手动开启安装权限
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        LogUtils.d(TAG, "需要引导用户手动开启安装权限");
+                        Uri packageURI = Uri.parse("package:" + mContext.getPackageName());
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
+                        startActivityForResult(intent, GET_UNKNOWN_APP_SOURCES);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case GET_UNKNOWN_APP_SOURCES:
+                    // 从安装未知来源文件的设置页面返回
+                    checkIsAndroidO();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
 }

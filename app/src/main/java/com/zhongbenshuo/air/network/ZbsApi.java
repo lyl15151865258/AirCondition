@@ -1,17 +1,19 @@
 package com.zhongbenshuo.air.network;
 
+import com.google.gson.JsonObject;
 import com.zhongbenshuo.air.bean.OpenAndCloseDoorRecord;
 import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.bean.Weather;
 
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Streaming;
 import retrofit2.http.Url;
 
 /**
@@ -50,20 +52,20 @@ public interface ZbsApi {
     Observable<Weather> searchWeather(@Field("key") String key, @Field("city") String city, @Field("extensions") String extensions, @Field("output") String output);
 
     /**
-     * 下载软件
+     * 查询最新的版本信息
      *
-     * @return ResponseBody
+     * @return 返回值
      */
-    @GET("VersionController/downloadNewVersion.do")
-    Call<ResponseBody> downloadFile();
+    @POST("user/searchNewVersion.do")
+    Observable<Result> searchNewVersion(@Body JsonObject params);
 
     /**
      * 下载软件
      *
-     * @param filePath 文件路径
      * @return 文件
      */
+    @Streaming
     @GET
-    Call<ResponseBody> downloadFile(@Url String filePath);
+    Observable<ResponseBody> executeDownload(@Header("Range") String range, @Url() String url);
 
 }

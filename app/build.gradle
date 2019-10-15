@@ -6,7 +6,7 @@ android {
         applicationId "com.zhongbenshuo.air"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 20191012
+        versionCode 20191013
         versionName "1.1.1"
 
         ndk {

@@ -129,14 +129,13 @@ public class TimeTaskService extends Service {
             LogUtils.d(TAG, "当前时间：" + currentTime);
             // 每5分钟查询一次实时天气
             if (currentTime.endsWith("0") || currentTime.endsWith("5")) {
-                // 整点查询天气
                 searchWeather();
             }
         }, 0, betweenTime, TimeUnit.SECONDS);
     }
 
     /**
-     * 查询本地未同步服务端的人脸列表
+     * 查询天气
      */
     public void searchWeather() {
         LogUtils.d(TAG, "查询天气");

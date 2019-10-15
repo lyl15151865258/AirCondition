@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- 前台Service权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <!-- 开机自启 -->
+    <!-- 开机自动启动 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- 避免Android8.0安装APK时提示解析安装包错误 -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -89,7 +89,7 @@
             android:enabled="true"
             android:persistent="true" />
 
-        <!-- 下载文件时在状态栏显示进度的服务 -->
+        <!-- 下载文件时在状态栏显示进度的服务-->
         <service
             android:name=".service.DownloadService"
             android:enabled="true"
@@ -110,7 +110,7 @@
                 <action android:name="android.intent.action.MEDIA_MOUNTED" />
                 <!-- Sdcard开始扫描 -->
                 <action android:name="android.intent.action.MEDIA_SCANNER_STARTED" />
-                <!-- Sdcard扫描完成✅ -->
+                <!-- Sdcard扫描完成 -->
                 <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED" />
                 <!-- 系统是这样发送广播的，所以必须这样订阅 -->
                 <data android:scheme="false" />

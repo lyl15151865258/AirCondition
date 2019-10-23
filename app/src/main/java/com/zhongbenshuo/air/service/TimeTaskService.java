@@ -1,9 +1,12 @@
 package com.zhongbenshuo.air.service;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +26,7 @@ import com.zhongbenshuo.air.constant.NetWork;
 import com.zhongbenshuo.air.network.ExceptionHandle;
 import com.zhongbenshuo.air.network.NetClient;
 import com.zhongbenshuo.air.network.NetworkObserver;
+import com.zhongbenshuo.air.utils.ActivityController;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
 import com.zhongbenshuo.air.utils.TimeUtils;
@@ -131,6 +135,10 @@ public class TimeTaskService extends Service {
             if (currentTime.endsWith("0") || currentTime.endsWith("5")) {
                 searchWeather();
             }
+            // 每天06:00重启APP
+            if (currentTime.equals("06:00")) {
+                restartApp();
+            }
         }, 0, betweenTime, TimeUnit.SECONDS);
     }
 
@@ -165,6 +173,26 @@ public class TimeTaskService extends Service {
                 }
             }
         });
+    }
+
+    /**
+     * 重启APP
+     */
+    private void restartApp() {
+        Intent intent = mContext.getPackageManager().getLaunchIntentForPackage(mContext.getPackageName());
+        if (intent != null) {
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+            AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+            mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 300, restartIntent);
+            ActivityController.exit(mContext);
+            ActivityManager am = (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+            if (am != null) {
+                am.killBackgroundProcesses("com.zhongbenshuo.air");
+            }
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
     }
 
     @Override

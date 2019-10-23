@@ -6,8 +6,8 @@ android {
         applicationId "com.zhongbenshuo.air"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 20191013
-        versionName "1.1.1"
+        versionCode 20191023
+        versionName "1.1.2"
 
         ndk {
             abiFilters "armeabi", "x86", "armeabi-v7a", "arm64-v8a", "x86_64"

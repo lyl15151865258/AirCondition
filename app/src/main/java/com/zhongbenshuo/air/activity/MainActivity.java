@@ -59,7 +59,6 @@ import com.zhongbenshuo.air.bean.Weather;
 import com.zhongbenshuo.air.constant.ApkInfo;
 import com.zhongbenshuo.air.constant.Constants;
 import com.zhongbenshuo.air.constant.ErrorCode;
-import com.zhongbenshuo.air.constant.NetWork;
 import com.zhongbenshuo.air.glide.RoundedCornersTransformation;
 import com.zhongbenshuo.air.interfaces.DownloadProgress;
 import com.zhongbenshuo.air.network.ExceptionHandle;
@@ -412,10 +411,10 @@ public class MainActivity extends BaseActivity {
             if (!TextUtils.isEmpty(url)) {
                 ivUser.setVisibility(View.VISIBLE);
                 refreshPage(null);
-                LogUtils.d(TAG, "展示照片：" + "http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/"));
+                LogUtils.d(TAG, "展示照片：" + NetClient.getBaseUrl() + url.replace("\\", "/"));
                 RoundedCornersTransformation roundedCornersTransformation = new RoundedCornersTransformation(10, 0, CORNER_ALL, CENTER_CROP);
                 RequestOptions options = new RequestOptions().dontAnimate().transform(roundedCornersTransformation);
-                Glide.with(mContext).load("http://" + NetWork.SERVER_HOST_MAIN + ":" + NetWork.SERVER_PORT_MAIN + "/" + url.replace("\\", "/")).apply(options).into(ivUser);
+                Glide.with(mContext).load(NetClient.getBaseUrl() + url.replace("\\", "/")).apply(options).into(ivUser);
             }
             // 播放门铃音乐
             mediaPlayer = MediaPlayer.create(mContext, R.raw.bell);
@@ -740,7 +739,7 @@ public class MainActivity extends BaseActivity {
         openAndCloseDoorRecord.setCreateTime(TimeUtils.getCurrentDateTime());
         openAndCloseDoorRecord.setStatus(status);
 
-        Observable<Result> resultObservable = NetClient.getInstance(NetClient.BASE_URL_PROJECT, false, true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
+        Observable<Result> resultObservable = NetClient.getInstance(NetClient.getBaseUrlProject(), false, true).getZbsApi().openAndCloseDoorRecord(openAndCloseDoorRecord);
         resultObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new NetworkObserver<Result>(this) {
 
             @Override

@@ -115,7 +115,7 @@ public class WebSocketService extends Service {
      */
     public void initWebSocket() {
         try {
-            msgWebSocketClient = new WebSocketClient("ws://" + NetWork.SERVER_DOMAIN_NAME + ":" + NetWork.PORT_WEBSOCKET + "/" + NetWork.NAME_WEBSOCKET, new IMsgWebSocket() {
+            msgWebSocketClient = new WebSocketClient("wss://" + NetWork.SERVER_DOMAIN_NAME + ":" + NetWork.PORT_WEBSOCKET + "/" + NetWork.NAME_WEBSOCKET, new IMsgWebSocket() {
                 @Override
                 public void openSuccess() {
                     // websocket连接成功

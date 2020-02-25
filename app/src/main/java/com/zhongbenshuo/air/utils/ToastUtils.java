@@ -1,8 +1,8 @@
 package com.zhongbenshuo.air.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -68,8 +68,8 @@ public class ToastUtils {
     }
 
     private void doshow() {
-        ViewGroup container = ((Activity) mContext).findViewById(android.R.id.content);
-        View mView = ((Activity) mContext).getLayoutInflater().inflate(R.layout.toast_layout, null);
+        ViewGroup container = ((AppCompatActivity) mContext).findViewById(android.R.id.content);
+        View mView = ((AppCompatActivity) mContext).getLayoutInflater().inflate(R.layout.toast_layout, null);
         container.addView(mView);
 
         LinearLayout mContainer = mView.findViewById(R.id.mbContainer);

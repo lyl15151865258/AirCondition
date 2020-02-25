@@ -2,13 +2,13 @@ package com.zhongbenshuo.air.utils;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 
@@ -94,7 +94,7 @@ public class DeviceUtil {
      * @param activity
      * @return > 0 success; <= 0 fail
      */
-    public static int getStatusHeight(Activity activity) {
+    public static int getStatusHeight(AppCompatActivity activity) {
         int statusHeight = 0;
         Rect localRect = new Rect();
         activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(localRect);
@@ -114,7 +114,7 @@ public class DeviceUtil {
     }
 
     // 获取手机状态栏高度
-    public static int getStatusBarHeight(Activity activity) {
+    public static int getStatusBarHeight(AppCompatActivity activity) {
         int statusBarHeight = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Class<?> c = null;
@@ -134,13 +134,13 @@ public class DeviceUtil {
         return statusBarHeight;
     }
 
-    public static int getScreenWidth(Activity activity) {
+    public static int getScreenWidth(AppCompatActivity activity) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm.widthPixels;
     }
 
-    public static int getScreenHeight(Activity activity) {
+    public static int getScreenHeight(AppCompatActivity activity) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm.heightPixels;

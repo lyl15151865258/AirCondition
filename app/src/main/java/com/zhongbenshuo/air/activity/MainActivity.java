@@ -17,11 +17,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -37,11 +37,10 @@ import com.ywl5320.wlmedia.WlMedia;
 import com.ywl5320.wlmedia.enums.WlCodecType;
 import com.ywl5320.wlmedia.enums.WlMute;
 import com.ywl5320.wlmedia.enums.WlPlayModel;
-import com.ywl5320.wlmedia.enums.WlSampleRate;
-import com.ywl5320.wlmedia.enums.WlScaleType;
+import com.ywl5320.wlmedia.enums.WlTransportModel;
 import com.ywl5320.wlmedia.listener.WlOnPcmDataListener;
 import com.ywl5320.wlmedia.listener.WlOnVideoViewListener;
-import com.ywl5320.wlmedia.widget.WlSurfaceView;
+import com.ywl5320.wlmedia.surface.WlSurfaceView;
 import com.zhongbenshuo.air.BuildConfig;
 import com.zhongbenshuo.air.R;
 import com.zhongbenshuo.air.adapter.HistoryDataAdapter;
@@ -230,16 +229,11 @@ public class MainActivity extends BaseActivity {
         wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO);        //声音视频都播放
         wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC);             //优先使用硬解码
         wlMedia.setMute(WlMute.MUTE_CENTER);                            //立体声
-        wlMedia.setVolume(80);                                          //80%音量
-        wlMedia.setPlayPitch(1.0f);                                     //正常速度
-        wlMedia.setPlaySpeed(1.0f);                                     //正常音调
-        wlMedia.setRtspTimeOut(30);                                     //网络流超时时间
-        wlMedia.setShowPcmData(true);                                   //回调返回音频pcm数据
-        wlMedia.setSampleRate(WlSampleRate.RATE_44100);                 //设置音频采样率为指定值（返回的PCM就是这个采样率）
+        wlMedia.setVolume(100);                                         //100%音量
+        wlMedia.setTransportModel(WlTransportModel.TRANSPORT_MODEL_TCP);//TCP模式
         wlSurfaceView.setWlMedia(wlMedia);                              //给视频surface设置播放器
 
         wlMedia.setOnPreparedListener(() -> {
-            wlMedia.setVideoScale(WlScaleType.SCALE_FULL_SURFACE);
             wlMedia.start();
         });
 
@@ -259,14 +253,6 @@ public class MainActivity extends BaseActivity {
         wlMedia.setOnCompleteListener(() -> {
             LogUtils.d(TAG, "WlMedia：播放完成");
             change();
-        });
-
-        wlMedia.setOnPauseListener(pause -> {
-            if (pause) {
-                LogUtils.d(TAG, "WlMedia：暂停中");
-            } else {
-                LogUtils.d(TAG, "WlMedia：继续播放");
-            }
         });
 
         wlMedia.setOnPcmDataListener(new WlOnPcmDataListener() {
@@ -919,9 +905,6 @@ public class MainActivity extends BaseActivity {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
-        }
-        if (wlMedia != null) {
-            wlMedia.onDestroy();
         }
         if (netBroadcastReceiver != null) {
             unregisterReceiver(netBroadcastReceiver);

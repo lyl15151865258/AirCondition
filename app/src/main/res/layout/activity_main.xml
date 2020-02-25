@@ -19,7 +19,7 @@
             android:layout_weight="1"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPosition"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -153,7 +153,7 @@
 
                         </LinearLayout>
 
-                        <android.support.v7.widget.RecyclerView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvRealTime"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -293,7 +293,7 @@
                             android:layout_height="@dimen/dp_1"
                             android:background="@color/divider" />
 
-                        <android.support.v7.widget.RecyclerView
+                        <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvHistory"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/dp_84"
@@ -304,7 +304,7 @@
 
                 </LinearLayout>
 
-                <com.ywl5320.wlmedia.widget.WlSurfaceView
+                <com.ywl5320.wlmedia.surface.WlSurfaceView
                     android:id="@+id/wlsurfaceview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
@@ -336,7 +336,7 @@
                     android:adjustViewBounds="true"
                     android:contentDescription="@null"
                     android:scaleType="centerInside"
-                    android:src="@drawable/network"
+                    app:srcCompat="@drawable/network"
                     android:visibility="invisible" />
 
             </LinearLayout>
@@ -347,7 +347,7 @@
                 android:adjustViewBounds="true"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/logo_white" />
+                app:srcCompat="@drawable/logo_white" />
 
             <TextView
                 android:id="@+id/tvTitle"

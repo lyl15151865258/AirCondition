@@ -21,7 +21,7 @@ public class NetWork {
     //主账号端口号
     public static final String SERVER_PORT_MAIN = "443";
     //主账号项目名
-    public static final String PROJECT_MAIN = "ZBSAttendance";
+    public static final String PROJECT_MAIN = "OA";
 
     //http请求超时时间（单位：秒）
     public static final int TIME_OUT_HTTP = 5;

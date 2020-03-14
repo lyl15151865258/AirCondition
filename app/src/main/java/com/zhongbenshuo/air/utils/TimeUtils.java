@@ -1,9 +1,9 @@
 package com.zhongbenshuo.air.utils;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import androidx.appcompat.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.widget.DatePicker;
 import android.widget.TextView;
@@ -811,7 +811,7 @@ public class TimeUtils {
      */
     public static void selectData(Context context, TextView tv) {
         Calendar calendar = Calendar.getInstance();
-        DatePickerDialog dataPickerDialog = new DatePickerDialog(context, android.app.AlertDialog.THEME_HOLO_LIGHT, (view, year, monthOfYear, dayOfMonth) -> {
+        DatePickerDialog dataPickerDialog = new DatePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, (view, year, monthOfYear, dayOfMonth) -> {
             calendar.set(year, monthOfYear, dayOfMonth);
             String date = DateFormat.format("yyyy-MM-dd", calendar).toString();
             tv.setText(date);
@@ -831,7 +831,7 @@ public class TimeUtils {
      */
     public static void selectTime(Context context, TextView tv, int defaultHourOfDay, int defaultMinute) {
         Calendar calendar = Calendar.getInstance();
-        new TimePickerDialog(context, android.app.AlertDialog.THEME_HOLO_LIGHT, (view, hourOfDay, minute) -> {
+        new TimePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, (view, hourOfDay, minute) -> {
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
             calendar.set(Calendar.MINUTE, minute);
             calendar.set(Calendar.SECOND, 0);

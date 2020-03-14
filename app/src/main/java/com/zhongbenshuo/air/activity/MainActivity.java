@@ -17,11 +17,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -311,7 +312,7 @@ public class MainActivity extends BaseActivity {
      * 播放视频流
      */
     public void play() {
-        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h265/Streaming/Channels/101");
         wlMedia.prepared();
     }
 
@@ -319,7 +320,7 @@ public class MainActivity extends BaseActivity {
      * 切换视频流
      */
     public void change() {
-        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h264/Streaming/Channels/101");
+        wlMedia.setSource("rtsp://admin:fengyinhua504@192.168.2.254:554/h265/Streaming/Channels/101");
         wlMedia.next();
     }
 

@@ -10,6 +10,7 @@ import com.zhongbenshuo.air.bean.Result;
 import com.zhongbenshuo.air.constant.ErrorCode;
 import com.zhongbenshuo.air.constant.NetWork;
 import com.zhongbenshuo.air.contentprovider.SPHelper;
+import com.zhongbenshuo.air.network.retrofit.SSLSocketFactoryCompat;
 import com.zhongbenshuo.air.utils.GsonUtils;
 import com.zhongbenshuo.air.utils.LogUtils;
 import com.zhongbenshuo.air.utils.NetworkUtil;
@@ -21,26 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.math.BigInteger;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Cache;
@@ -136,14 +124,10 @@ public class NetClient {
         // OkHttpClient对象
         OkHttpClient okHttpClient;
         OkHttpClient.Builder builder = new OkHttpClient().newBuilder();
-//        try {
-//            //添加SSL证书验证
-//            builder.sslSocketFactory(getSSLSocketFactory(), new MyX509TrustManager());
-//        } catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        } catch (KeyManagementException e) {
-//            e.printStackTrace();
-//        }
+        // Android5.0以下支持SSL
+        LogUtils.d(TAG,"设置SSL证书开始");
+        setOkHttpSsl(builder);
+        LogUtils.d(TAG,"设置SSL证书结束");
 
         // 根据是否需要加密确定是否加入DataEncryptInterceptor拦截器
         if (encrypt) {
@@ -176,7 +160,7 @@ public class NetClient {
         } else {
             LogUtils.d(TAG, "走不加密的请求");
             if (needCache) {
-                okHttpClient = new OkHttpClient.Builder()
+                okHttpClient = builder
                         .addInterceptor(loggingInterceptor)
                         .addInterceptor(cacheInterceptor)
                         .cache(cache)
@@ -188,7 +172,7 @@ public class NetClient {
                         .retryOnConnectionFailure(true)
                         .build();
             } else {
-                okHttpClient = new OkHttpClient.Builder()
+                okHttpClient = builder
                         .addInterceptor(loggingInterceptor)
                         //设置超时时间
                         .connectTimeout(NetWork.TIME_OUT_HTTP, TimeUnit.SECONDS)
@@ -213,82 +197,36 @@ public class NetClient {
                 .build();
     }
 
-    private SSLSocketFactory getSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext context = SSLContext.getInstance("TLS");
-        TrustManager[] trustManagers = {new MyX509TrustManager()};
-        context.init(null, trustManagers, new SecureRandom());
-        return context.getSocketFactory();
-    }
+    /**
+     * OkHttp在4.4及以下不支持TLS协议的解决方法
+     * javax.net.ssl.SSLHandshakeException: javax.net.ssl.SSLProtocolException
+     *
+     * @param okhttpBuilder
+     */
+    private synchronized static void setOkHttpSsl(OkHttpClient.Builder okhttpBuilder) {
+        try {
+            // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
+            final X509TrustManager trustAllCert =
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-    private class MyX509TrustManager implements X509TrustManager {
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            if (chain == null) {
-                throw new CertificateException("checkServerTrusted: X509Certificate array is null");
-            }
-            if (chain.length < 1) {
-                throw new CertificateException("checkServerTrusted: X509Certificate is empty");
-            }
-            if (!(null != authType && authType.equals("ECDHE_RSA"))) {
-                throw new CertificateException("checkServerTrusted: AuthType is not ECDHE_RSA");
-            }
-
-            //检查所有证书
-            try {
-                TrustManagerFactory factory = TrustManagerFactory.getInstance("X509");
-                factory.init((KeyStore) null);
-                for (TrustManager trustManager : factory.getTrustManagers()) {
-                    ((X509TrustManager) trustManager).checkServerTrusted(chain, authType);
-                }
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            }
-
-            //获取本地证书中的信息
-            String clientEncoded = "";
-            String clientSubject = "";
-            String clientIssUser = "";
-            try {
-                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                InputStream inputStream = AirApplication.getInstance().getAssets().open("zbs.cer");
-                X509Certificate clientCertificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
-                clientEncoded = new BigInteger(1, clientCertificate.getPublicKey().getEncoded()).toString(16);
-                clientSubject = clientCertificate.getSubjectDN().getName();
-                clientIssUser = clientCertificate.getIssuerDN().getName();
-                LogUtils.d(TAG, "证书详情：clientEncoded：" + clientEncoded + "，clientSubject" + clientSubject + "，clientIssUser" + clientIssUser);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //获取网络中的证书信息
-            X509Certificate certificate = chain[0];
-            PublicKey publicKey = certificate.getPublicKey();
-            String serverEncoded = new BigInteger(1, publicKey.getEncoded()).toString(16);
-
-            if (!clientEncoded.equals(serverEncoded)) {
-                throw new CertificateException("server's PublicKey is not equals to client's PublicKey");
-            }
-            String subject = certificate.getSubjectDN().getName();
-            if (!clientSubject.equals(subject)) {
-                throw new CertificateException("server's subject is not equals to client's subject");
-            }
-            String issuser = certificate.getIssuerDN().getName();
-            if (!clientIssUser.equals(issuser)) {
-                throw new CertificateException("server's issuser is not equals to client's issuser");
-            }
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[0];
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return new java.security.cert.X509Certificate[]{};
+                        }
+                    };
+            final SSLSocketFactory sslSocketFactory = new SSLSocketFactoryCompat(trustAllCert);
+            okhttpBuilder.sslSocketFactory(sslSocketFactory, trustAllCert);
+            LogUtils.d(TAG,"设置SSL证书成功");
+        } catch (Exception e) {
+            LogUtils.d(TAG,"设置SSL证书失败");
+            throw new RuntimeException(e);
         }
     }
 

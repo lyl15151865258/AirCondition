@@ -2,7 +2,7 @@ package com.zhongbenshuo.air.utils;
 
 import android.content.Context;
 import android.os.Handler;
-import androidx.appcompat.app.AppCompatActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;

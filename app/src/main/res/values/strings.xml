@@ -3,10 +3,10 @@
 
     <string name="app_name">环境监测系统</string>
 
-    <string name="RealTimeSyncService">环境监测同步服务正在运行</string>
+    <string name="RealTimeSyncService">环境监测同步服务</string>
     <string name="RealTimeSyncServiceRunning">环境监测同步服务正在运行</string>
 
-    <string name="TimeTaskService">定时任务服务正在运行</string>
+    <string name="TimeTaskService">定时任务服务</string>
     <string name="TimeTaskServiceRunning">定时任务服务正在运行</string>
 
     <string name="Cancel">取消</string>

@@ -66,5 +66,5 @@ dependencies {
     // 注解
     implementation 'org.jetbrains:annotations:16.0.1'
     // RTSP播放
-    implementation 'ywl.ywl5320:wlmedia:1.0.6'
+    implementation 'ywl.ywl5320:wlmedia:1.0.7'
 }
